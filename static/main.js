@@ -38,9 +38,7 @@ function setupEventListeners() {
     // Trip edit form buttons
     const editForm = document.getElementById('tripEditMode');
     if (editForm) {
-        const saveButton = editForm.querySelector('.btn-primary');
         const cancelButton = editForm.querySelector('.btn-outline-secondary');
-        if (saveButton) saveButton.addEventListener('click', updateTrip);
         if (cancelButton) cancelButton.addEventListener('click', cancelEdit);
     }
     

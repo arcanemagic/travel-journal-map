@@ -34,19 +34,14 @@ body {
     left: 24px;
     top: 24px;
     bottom: 24px;
+    height: fit-content;
+    max-height: calc(100vh - 48px);
     width: 400px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     z-index: 1000;
-    display: flex;
-    flex-direction: column;
-}
-
-#tripsList, .trip-form, .trip-details, .view-content, .edit-content {
-    padding: 1.5rem;
-    flex: 1;
     overflow-y: auto;
 }
 
@@ -61,8 +56,6 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
 }
 
 .panel-header h1 {
@@ -86,6 +79,10 @@ body {
 
 .add-trip-btn:hover {
     background: #e01873;
+}
+
+#tripsList, .trip-form, .trip-details, .view-content, .edit-content {
+    padding: 1.5rem;
 }
 
 .trip-item {
@@ -113,23 +110,60 @@ body {
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
 }
 
-.form-group input[type="text"],
-.form-group input[type="date"],
-.form-group textarea {
+.form-control {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
+    padding: 1rem;
+    border: 2px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    color: var(--text-color);
 }
 
-.form-group textarea {
-    height: 100px;
+.form-control::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.form-control:hover {
+    border-color: rgba(0, 0, 0, 0.12);
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(255, 30, 128, 0.1);
+}
+
+textarea.form-control {
+    min-height: 120px;
+    line-height: 1.6;
     resize: vertical;
+}
+
+input[type="text"]#tripTitle,
+input[type="text"]#editTripTitle {
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+
+#tripDescription,
+#editTripDescription {
+    font-size: 1rem;
+    line-height: 1.6;
 }
 
 .form-actions {

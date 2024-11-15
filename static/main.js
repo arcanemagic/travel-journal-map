@@ -172,7 +172,7 @@ function updateMap() {
             }
         });
 
-        // Create a path between the markers if there are at least 2 locations
+        // Create an animated path between the markers if there are at least 2 locations
         if (selectedLocations.length >= 2) {
             const pathCoordinates = selectedLocations.map(loc => [
                 parseFloat(loc.latitude),
@@ -180,11 +180,8 @@ function updateMap() {
             ]).filter(coords => !isNaN(coords[0]) && !isNaN(coords[1]));
 
             if (pathCoordinates.length >= 2) {
-                path = L.polyline(pathCoordinates, {
-                    color: 'var(--accent-color)',
-                    weight: 3,
-                    opacity: 0.7
-                }).addTo(map);
+                path = animatePathWithPulses(pathCoordinates);
+                if (path) path.addTo(map);
             }
         }
 
@@ -891,7 +888,7 @@ function updateNewTripLocations() {
         li.innerHTML = `
             <i class="fas fa-grip-vertical drag-handle"></i>
             <span class="location-name">${loc.name}</span>
-            <button class="btn-icon btn-danger" onclick="removeLocation(${index})" aria-label="Remove location">
+            <button class="btn-icon delete-btn" onclick="removeLocation(${index})" aria-label="Remove location">
                 <i class="fas fa-trash-alt"></i>
             </button>
         `;
@@ -915,4 +912,78 @@ function updateNewTripLocations() {
 
     // Update map with current locations
     updateMap();
+}
+
+// Function to animate path with pulses
+function animatePathWithPulses(pathCoordinates) {
+    if (!pathCoordinates || pathCoordinates.length < 2) return null;
+
+    // Create a featureGroup to hold the paths
+    const pathGroup = L.featureGroup();
+
+    // Create the base path for the entire route (solid line)
+    const basePath = L.polyline(pathCoordinates, {
+        color: 'var(--accent-color)',
+        weight: 2,
+        opacity: 0.35,  // Adjusted back to 0.15
+        lineCap: 'round',
+        lineJoin: 'round'
+    });
+
+    // Create multiple animated paths with offset animations for continuous flow
+    const createAnimatedPath = (offset) => {
+        const animatedPath = L.polyline(pathCoordinates, {
+            color: 'var(--accent-color)',
+            weight: 4,
+            opacity: 0.85,
+            lineCap: 'round',
+            lineJoin: 'round'
+        });
+
+        animatedPath.on('add', function(e) {
+            const pathElement = e.target.getElement();
+            if (pathElement) {
+                pathElement.classList.remove(`flow-path-${offset}`);
+                void pathElement.offsetWidth;
+
+                // Create and add the animation style if it doesn't exist
+                if (!document.querySelector(`style[data-animation="flow-${offset}"]`)) {
+                    const style = document.createElement('style');
+                    style.setAttribute('data-animation', `flow-${offset}`);
+                    style.textContent = `
+                        @keyframes flowAnimation${offset} {
+                            0% {
+                                stroke-dashoffset: 100;
+                            }
+                            100% {
+                                stroke-dashoffset: 0;
+                            }
+                        }
+                        .flow-path-${offset} {
+                            stroke-dasharray: 10, 90;
+                            animation: flowAnimation${offset} 3s linear infinite;
+                            animation-delay: ${offset}s;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                pathElement.classList.add(`flow-path-${offset}`);
+            }
+        });
+
+        return animatedPath;
+    };
+
+    // Create three paths with different offsets for continuous flow
+    const animatedPath1 = createAnimatedPath(0);
+    const animatedPath2 = createAnimatedPath(-1);
+    const animatedPath3 = createAnimatedPath(-2);
+
+    pathGroup.addLayer(basePath);
+    pathGroup.addLayer(animatedPath1);
+    pathGroup.addLayer(animatedPath2);
+    pathGroup.addLayer(animatedPath3);
+
+    return pathGroup;
 }

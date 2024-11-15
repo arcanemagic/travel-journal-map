@@ -416,14 +416,26 @@ body {
 }
 
 /* Path Styles */
-.location-path {
-    stroke: var(--accent-color);
-    stroke-width: 3;
+.leaflet-interactive {
+    transition: opacity 0.3s ease;
+}
+
+path.leaflet-interactive {
     stroke-linecap: round;
     stroke-linejoin: round;
-    fill: none;
     pointer-events: none;
     filter: drop-shadow(0 0 2px rgba(255, 30, 128, 0.3));
+}
+
+.leaflet-pane path {
+    vector-effect: non-scaling-stroke;
+}
+
+[class^="flow-path-"] {
+    stroke-dasharray: 10, 30;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    transition: none;
 }
 
 /* Map Path Styles */
@@ -440,6 +452,16 @@ body {
     stroke: var(--accent-color) !important;
     stroke-width: 3 !important;
     opacity: 1 !important;
+}
+
+.animated-path polyline {
+    fill: none;
+    stroke: var(--accent-color);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+    filter: drop-shadow(0 0 2px rgba(255, 30, 128, 0.3));
 }
 
 @keyframes fadeIn {

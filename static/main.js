@@ -60,7 +60,9 @@ function initializeMap() {
     console.log('Initializing map...');
     map = L.map('map', {
         zoomControl: false,
-        attributionControl: true
+        attributionControl: true,
+        minZoom: 2,
+        maxZoom: 19
     }).setView([20, 0], 2);
 
     // Add the clean, topographic map style
@@ -183,10 +185,23 @@ function updateMap() {
             }
         }
 
-        // Fit the map bounds to show all markers
+        // Fit the map bounds to show all markers with padding for the text pane
         if (markers.length > 0) {
             const group = new L.featureGroup(markers);
-            map.fitBounds(group.getBounds().pad(0.1));
+            const bounds = group.getBounds();
+            
+            // Calculate padding based on the trips panel width
+            const tripsPanel = document.querySelector('.trips-panel');
+            const panelWidth = tripsPanel ? tripsPanel.offsetWidth + 48 : 448; // Add 48px for the margin
+            
+            // Add padding to the left for the panel and some padding all around
+            map.fitBounds(bounds, {
+                paddingTopLeft: [panelWidth, 24],
+                paddingBottomRight: [24, 24],
+                maxZoom: 12, // Limit maximum zoom for better visibility
+                animate: true,
+                duration: 1.0
+            });
         }
     }
 }

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Travel Journal Map</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="map"></div>
+    
+    <!-- Trips Panel -->
+    <div class="trips-panel">
+        <!-- Trip View Mode -->
+        <div id="tripViewMode" style="display: none;">
+            <div class="view-header">
+                <button class="back-arrow" onclick="closeTrip()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h3 id="viewTripTitle"></h3>
+            </div>
+            <div class="view-content">
+                <p id="viewTripDescription" class="trip-description"></p>
+                <hr class="form-divider">
+                <h4 class="section-title">locations</h4>
+                <ul id="viewLocations" class="location-list"></ul>
+                <hr class="form-divider">
+                <div class="view-actions">
+                    <button onclick="startEditTrip()" class="btn btn-primary">edit trip</button>
+                    <button onclick="deleteTrip()" class="btn btn-danger">delete trip</button>
+                    <button onclick="closeTrip()" class="btn btn-outline-secondary">close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trip Edit Mode -->
+        <div id="tripEditMode" style="display: none;">
+            <div class="edit-header">
+                <button class="back-arrow" onclick="cancelEdit()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h3>edit trip</h3>
+            </div>
+            <form id="editTripForm">
+                <div class="form-group">
+                    <label>title</label>
+                    <input type="text" id="editTripTitle" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>description</label>
+                    <textarea id="editTripDescription" class="form-control" rows="3"></textarea>
+                </div>
+                <hr class="form-divider">
+                <div class="form-group">
+                    <label class="section-title">locations</label>
+                    <div class="search-container">
+                        <input type="text" id="editSearchInput" class="form-control" placeholder="Search for a location...">
+                        <div id="editSearchResults" class="search-results"></div>
+                    </div>
+                    <ul id="editLocations" class="location-list"></ul>
+                </div>
+                <hr class="form-divider">
+                <div class="edit-actions">
+                    <button type="button" onclick="updateTrip()" class="btn btn-primary">save changes</button>
+                    <button type="button" onclick="cancelEdit()" class="btn btn-outline-secondary">cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Trip List Mode (Default) -->
+        <div id="tripListMode">
+            <div class="trips-header">
+                <h3>my trips</h3>
+                <div class="header-actions">
+                    <button onclick="showNewTripForm()" class="btn btn-primary">new trip</button>
+                </div>
+            </div>
+            <div id="tripsList"></div>
+        </div>
+
+        <!-- New Trip Form -->
+        <div id="newTripForm" style="display: none;">
+            <div class="edit-header">
+                <button class="back-arrow" onclick="cancelNewTrip()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h3>New Trip</h3>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label>title</label>
+                    <input type="text" id="tripTitle" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>description</label>
+                    <textarea id="tripDescription" class="form-control" rows="3"></textarea>
+                </div>
+                <hr class="form-divider">
+                <div class="form-group">
+                    <label class="section-title">locations</label>
+                    <div class="search-container">
+                        <input type="text" id="newSearchInput" class="form-control" placeholder="Search for a location...">
+                        <div id="newSearchResults" class="search-results"></div>
+                    </div>
+                    <ul id="newTripLocations" class="location-list"></ul>
+                </div>
+                <hr class="form-divider">
+                <div class="edit-actions">
+                    <button type="button" onclick="saveNewTrip()" class="btn btn-primary">save trip</button>
+                    <button type="button" onclick="cancelNewTrip()" class="btn btn-outline-secondary">cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Gradient definition for path -->
+    <svg width="0" height="0">
+        <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#FF1E80;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#FF1E80;stop-opacity:0.2" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="/static/main.js"></script>
+</body>
+</html>

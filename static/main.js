@@ -63,12 +63,29 @@ function initializeMap() {
         attributionControl: true,
         minZoom: 2,
         maxZoom: 19
-    }).setView([20, 0], 2);
+    }).setView([30, -50], 3);
 
-    // Add the clean, topographic map style
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    // Add clean base layer without labels
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19
+    }).addTo(map);
+
+    // Add terrain layer for topography
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_terrain/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: ' <a href="https://leafletjs.com" target="_blank">Leaflet</a> |  <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> | <a href="https://nominatim.org/" target="_blank">Nominatim</a> | <a href="https://fontawesome.com/license" target="_blank">Font Awesome</a> | Created by <a href="https://dhruv.tech" target="_blank">Dhruv Jain</a> with Cascade'
+        opacity: 0.6  // More pronounced terrain visualization
+    }).addTo(map);
+
+    // Add features layer with subtle labels for enhanced readability
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        opacity: 0.7  // Clear roads and borders
+    }).addTo(map);
+
+    // Add crisp labels on top
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors | &copy; <a href="https://carto.com/attributions" target="_blank">CARTO</a> | <a href="https://nominatim.org/" target="_blank">Nominatim</a> | <a href="https://fontawesome.com/license" target="_blank">Font Awesome</a> | Created by <a href="https://dhruv.tech" target="_blank">Dhruv Jain</a> with Cascade'
     }).addTo(map);
 
     // Add zoom control to bottom right

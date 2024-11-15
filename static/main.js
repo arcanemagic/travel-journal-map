@@ -68,7 +68,7 @@ function initializeMap() {
     // Add the clean, topographic map style
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
-        attribution: ' OpenStreetMap contributors, CARTO'
+        attribution: ' <a href="https://leafletjs.com" target="_blank">Leaflet</a> |  <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> | <a href="https://nominatim.org/" target="_blank">Nominatim</a> | <a href="https://fontawesome.com/license" target="_blank">Font Awesome</a> | Created by <a href="https://dhruv.tech" target="_blank">Dhruv Jain</a> with Cascade'
     }).addTo(map);
 
     // Add zoom control to bottom right

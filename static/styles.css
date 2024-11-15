@@ -40,6 +40,13 @@ body {
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+#tripsList, .trip-form, .trip-details, .view-content, .edit-content {
+    padding: 1.5rem;
+    flex: 1;
     overflow-y: auto;
 }
 
@@ -54,6 +61,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
 }
 
 .panel-header h1 {
@@ -77,10 +86,6 @@ body {
 
 .add-trip-btn:hover {
     background: #e01873;
-}
-
-#tripsList, .trip-form, .trip-details, .view-content, .edit-content {
-    padding: 1.5rem;
 }
 
 .trip-item {

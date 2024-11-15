@@ -24,7 +24,7 @@ An interactive web application for creating and managing travel journals with an
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/travel-journal-map.git
+git clone https://github.com/arcanemagic/travel-journal-map.git
 cd travel-journal-map
 ```
 

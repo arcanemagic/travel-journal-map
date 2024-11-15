@@ -177,15 +177,18 @@ function updateMap() {
             const marker = createPulsingMarker(latlng).addTo(map);
             markers.push(marker);
 
+            // Update marker tooltip options
+            const tooltipOptions = {
+                permanent: false,
+                direction: 'top',
+                className: 'leaflet-tooltip',
+                offset: [0, -8],
+                opacity: 0.95
+            };
+
             // Add tooltip that shows on hover
             if (location.name) {
-                marker.bindTooltip(location.name, {
-                    permanent: false,
-                    direction: 'top',
-                    offset: [0, -10],
-                    opacity: 0.9,
-                    className: 'location-tooltip'
-                });
+                marker.bindTooltip(location.name, tooltipOptions);
             }
         });
 

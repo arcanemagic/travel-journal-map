@@ -43,7 +43,7 @@ class Trip(db.Model):
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    locations = db.relationship('Location', backref='trip', lazy=True, order_by='Location.order')
+    locations = db.relationship('Location', backref='trip', lazy=True, order_by='Location.order', cascade='all, delete-orphan')
 
     def to_dict(self):
         return {

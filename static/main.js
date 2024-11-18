@@ -269,10 +269,10 @@ function updateLocationsList() {
         const li = document.createElement('li');
         li.className = 'location-item';
         li.innerHTML = `
-            <i class="fas fa-grip-vertical drag-handle"></i>
+            <div class="drag-handle" role="button" aria-label="Drag to reorder"></div>
             <span class="location-name">${location.name}</span>
             <button class="btn-icon delete-btn" onclick="removeLocation(${index})" aria-label="Remove location">
-                <i class="fas fa-trash-alt"></i>
+                <i class="delete-icon"></i>
             </button>
         `;
         activeList.appendChild(li);
@@ -483,7 +483,22 @@ async function setupSearchInput() {
                     data.locations.forEach(location => {
                         const div = document.createElement('div');
                         div.className = 'search-result-item';
-                        div.textContent = location.name;
+                        
+                        // Create a more detailed display with primary and secondary text
+                        const primaryText = document.createElement('div');
+                        primaryText.className = 'search-result-primary';
+                        primaryText.textContent = location.name;
+                        
+                        const secondaryText = document.createElement('div');
+                        secondaryText.className = 'search-result-secondary';
+                        // Parse the display_name to show city, state, country
+                        const addressParts = location.display_name.split(', ');
+                        const relevantParts = addressParts.slice(1).filter(part => part !== location.name);
+                        secondaryText.textContent = relevantParts.join(', ');
+                        
+                        div.appendChild(primaryText);
+                        div.appendChild(secondaryText);
+                        
                         div.addEventListener('click', () => {
                             console.log('Selected location:', location);
                             addLocation({
@@ -613,7 +628,6 @@ async function updateTrip() {
             end_date: endDate || null,
             locations: selectedLocations.map((loc, index) => ({
                 name: loc.name,
-                display_name: loc.display_name,
                 latitude: loc.latitude,
                 longitude: loc.longitude
             }))
@@ -734,11 +748,11 @@ function showTripDetails(trip) {
         </div>
         <hr class="form-divider">
         <div class="view-actions">
-            <button class="btn btn-primary" id="editTrip">
-                <i class="fas fa-edit"></i> Edit Trip
+            <button class="btn btn-primary me-2" id="editTrip">
+                Edit Trip <i class="fas fa-pencil-alt"></i>
             </button>
             <button class="btn btn-danger" onclick="deleteTrip(${trip.id})">
-                <i class="fas fa-trash"></i> Delete
+                Delete <i class="fas fa-trash-alt"></i>
             </button>
         </div>
     `;
@@ -1017,10 +1031,10 @@ function updateNewTripLocations() {
         const li = document.createElement('li');
         li.className = 'location-item';
         li.innerHTML = `
-            <i class="fas fa-grip-vertical drag-handle"></i>
+            <div class="drag-handle" role="button" aria-label="Drag to reorder"></div>
             <span class="location-name">${loc.name}</span>
             <button class="btn-icon delete-btn" onclick="removeLocation(${index})" aria-label="Remove location">
-                <i class="fas fa-trash-alt"></i>
+                <i class="delete-icon"></i>
             </button>
         `;
         newTripLocations.appendChild(li);

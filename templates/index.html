@@ -30,8 +30,8 @@
                 <ul id="viewLocations" class="location-list"></ul>
                 <hr class="form-divider">
                 <div class="view-actions">
-                    <button onclick="startEditTrip()" class="btn btn-primary">edit trip</button>
-                    <button onclick="deleteTrip()" class="btn btn-danger">delete trip</button>
+                    <button onclick="startEditTrip()" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> edit trip</button>
+                    <button onclick="deleteTrip()" class="btn btn-danger"><i class="fas fa-trash-alt"></i> delete trip</button>
                 </div>
             </div>
         </div>
@@ -88,8 +88,8 @@
                 </div>
                 <hr class="form-divider">
                 <div class="edit-actions">
-                    <button type="button" onclick="updateTrip()" class="btn btn-primary">save changes</button>
-                    <button type="button" onclick="cancelEdit()" class="btn btn-outline-secondary">cancel</button>
+                    <button type="button" onclick="updateTrip()" class="btn btn-primary">save changes<i class="fas fa-check"></i></button>
+                    <button type="button" onclick="cancelEdit()" class="btn btn-outline-secondary">cancel<i class="fas fa-times"></i></button>
                 </div>
             </form>
         </div>
@@ -99,7 +99,7 @@
             <div class="trips-header">
                 <h3>my trips</h3>
                 <div class="header-actions">
-                    <button onclick="showNewTripForm()" class="btn btn-primary">new trip</button>
+                    <button onclick="showNewTripForm()" class="btn btn-primary">new trip<i class="fas fa-plus"></i></button>
                 </div>
             </div>
             <div id="tripsList"></div>
@@ -146,8 +146,8 @@
                 </div>
                 <hr class="form-divider">
                 <div class="edit-actions">
-                    <button type="button" onclick="saveNewTrip()" class="btn btn-primary">save trip</button>
-                    <button type="button" onclick="cancelNewTrip()" class="btn btn-outline-secondary">cancel</button>
+                    <button type="button" onclick="saveNewTrip()" class="btn btn-primary">save trip<i class="fas fa-check"></i></button>
+                    <button type="button" onclick="cancelNewTrip()" class="btn btn-outline-secondary">cancel<i class="fas fa-times"></i></button>
                 </div>
             </form>
         </div>

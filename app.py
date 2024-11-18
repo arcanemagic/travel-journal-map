@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from flask_migrate import Migrate
+from datetime import datetime, date
 import requests
 import os
 import logging
@@ -24,21 +25,24 @@ def after_request(response):
 instance_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'instance')
 if not os.path.exists(instance_path):
     os.makedirs(instance_path)
-db_path = os.path.join(instance_path, 'travel_journal.db')
 
 # Configure SQLAlchemy
+db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'instance', 'travel_journal.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True  # Log all SQL queries
 
 # Initialize database
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 class Trip(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    start_date = db.Column(db.Date, nullable=True)
+    end_date = db.Column(db.Date, nullable=True)
     locations = db.relationship('Location', backref='trip', lazy=True, order_by='Location.order', cascade='all, delete-orphan')
 
 class Location(db.Model):
@@ -111,22 +115,35 @@ def search_location():
 @app.route('/api/trips', methods=['GET'])
 def get_trips():
     try:
-        trips = Trip.query.order_by(Trip.date.desc()).all()
-        return jsonify({
-            'trips': [{
-                'id': trip.id,
-                'title': trip.title,
-                'description': trip.description,
-                'date': trip.date.isoformat(),
-                'locations': [{
-                    'name': loc.name,
-                    'lat': loc.latitude,
-                    'lon': loc.longitude
-                } for loc in trip.locations]
-            } for trip in trips]
-        })
+        logger.info("Fetching all trips...")
+        trips = Trip.query.order_by(Trip.created_at.desc()).all()
+        logger.info(f"Found {len(trips)} trips")
+        
+        trip_list = []
+        for trip in trips:
+            try:
+                trip_data = {
+                    'id': trip.id,
+                    'title': trip.title,
+                    'description': trip.description,
+                    'created_at': trip.created_at.isoformat() if trip.created_at else None,
+                    'start_date': trip.start_date.isoformat() if trip.start_date else None,
+                    'end_date': trip.end_date.isoformat() if trip.end_date else None,
+                    'locations': [{
+                        'name': loc.name,
+                        'lat': loc.latitude,
+                        'lon': loc.longitude
+                    } for loc in trip.locations]
+                }
+                trip_list.append(trip_data)
+            except Exception as trip_error:
+                logger.error(f"Error processing trip {trip.id}: {str(trip_error)}")
+                logger.error(traceback.format_exc())
+        
+        return jsonify({'trips': trip_list})
     except Exception as e:
         logger.error(f"Error getting trips: {str(e)}")
+        logger.error(traceback.format_exc())
         return jsonify({'error': 'Failed to get trips'}), 500
 
 @app.route('/api/trips', methods=['POST'])
@@ -147,7 +164,9 @@ def create_trip():
         # Create new trip
         trip = Trip(
             title=data['title'],
-            description=data.get('description', '')
+            description=data.get('description', ''),
+            start_date=date.fromisoformat(data.get('start_date', '')) if data.get('start_date') else None,
+            end_date=date.fromisoformat(data.get('end_date', '')) if data.get('end_date') else None
         )
         
         db.session.add(trip)
@@ -186,7 +205,9 @@ def get_trip(trip_id):
                 'id': trip.id,
                 'title': trip.title,
                 'description': trip.description,
-                'date': trip.date.isoformat(),
+                'created_at': trip.created_at.isoformat(),
+                'start_date': trip.start_date.isoformat() if trip.start_date else None,
+                'end_date': trip.end_date.isoformat() if trip.end_date else None,
                 'locations': [{
                     'name': loc.name,
                     'lat': loc.latitude,
@@ -217,6 +238,22 @@ def update_trip(trip_id):
         # Update trip details
         trip.title = data['title']
         trip.description = data.get('description', '')
+        
+        # Handle dates
+        def parse_date(date_str):
+            if not date_str:
+                return None
+            try:
+                # Parse the date string directly without timezone handling
+                # since we're dealing with dates only (not timestamps)
+                year, month, day = map(int, date_str.split('-'))
+                return date(year, month, day)
+            except (ValueError, TypeError) as e:
+                logger.error(f"Error parsing date {date_str}: {e}")
+                return None
+
+        trip.start_date = parse_date(data.get('start_date'))
+        trip.end_date = parse_date(data.get('end_date'))
         
         # Remove old locations
         Location.query.filter_by(trip_id=trip_id).delete()
@@ -251,7 +288,9 @@ def update_trip(trip_id):
                 'id': trip.id,
                 'title': trip.title,
                 'description': trip.description,
-                'date': trip.date.isoformat(),
+                'created_at': trip.created_at.isoformat() if trip.created_at else None,
+                'start_date': trip.start_date.isoformat() if trip.start_date else None,
+                'end_date': trip.end_date.isoformat() if trip.end_date else None,
                 'locations': [{
                     'name': loc.name,
                     'latitude': loc.latitude,

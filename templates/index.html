@@ -24,6 +24,7 @@
             </div>
             <div class="view-content">
                 <p id="viewTripDescription" class="trip-description"></p>
+                <p id="tripViewDates" class="trip-dates"></p>
                 <hr class="form-divider">
                 <h4 class="section-title">locations</h4>
                 <ul id="viewLocations" class="location-list"></ul>
@@ -52,6 +53,19 @@
                 <div class="form-group">
                     <label>description</label>
                     <textarea id="editTripDescription" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group date-range">
+                    <label>trip dates</label>
+                    <div class="date-inputs">
+                        <div class="date-input">
+                            <label>from</label>
+                            <input type="date" id="editTripStartDate" class="form-control">
+                        </div>
+                        <div class="date-input">
+                            <label>to</label>
+                            <input type="date" id="editTripEndDate" class="form-control">
+                        </div>
+                    </div>
                 </div>
                 <hr class="form-divider">
                 <div class="form-group">
@@ -97,6 +111,19 @@
                 <div class="form-group">
                     <label>description</label>
                     <textarea id="tripDescription" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group date-range">
+                    <label>trip dates</label>
+                    <div class="date-inputs">
+                        <div class="date-input">
+                            <label>from</label>
+                            <input type="date" id="tripStartDate" class="form-control">
+                        </div>
+                        <div class="date-input">
+                            <label>to</label>
+                            <input type="date" id="tripEndDate" class="form-control">
+                        </div>
+                    </div>
                 </div>
                 <hr class="form-divider">
                 <div class="form-group">

@@ -70,16 +70,10 @@ function initializeMap() {
         maxZoom: 19
     }).addTo(map);
 
-    // Add terrain layer for topography
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_terrain/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        opacity: 0.6  // More pronounced terrain visualization
-    }).addTo(map);
-
-    // Add features layer with subtle labels for enhanced readability
+    // Add terrain visualization using CARTO's hillshade
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
-        opacity: 0.7  // Clear roads and borders
+        opacity: 0.3  // Subtle terrain and features
     }).addTo(map);
 
     // Add crisp labels on top
@@ -384,9 +378,8 @@ function setupTripForm() {
             description,
             locations: selectedLocations.map((loc, index) => ({
                 name: loc.name,
-                latitude: loc.lat,
-                longitude: loc.lon,
-                order: index
+                latitude: loc.latitude,
+                longitude: loc.longitude
             }))
         };
 
@@ -525,10 +518,15 @@ async function loadTrips() {
             data.trips.forEach(trip => {
                 const tripItem = document.createElement('div');
                 tripItem.className = 'list-group-item';
+                
+                // Format dates using our consistent date formatter
+                const startDate = formatDateForDisplay(trip.start_date);
+                const endDate = formatDateForDisplay(trip.end_date);
+                
                 tripItem.innerHTML = `
                     <h5>${trip.title}</h5>
                     <p>${trip.description || ''}</p>
-                    <small>${new Date(trip.date).toLocaleDateString()}</small>
+                    <small>From ${startDate} to ${endDate}</small>
                 `;
                 tripItem.addEventListener('click', () => showTripDetails(trip));
                 tripsList.appendChild(tripItem);
@@ -552,58 +550,74 @@ async function updateTrip() {
 
         const title = document.getElementById('editTripTitle').value.trim();
         const description = document.getElementById('editTripDescription').value.trim();
-        
+        const startDateInput = document.getElementById('editTripStartDate');
+        const endDateInput = document.getElementById('editTripEndDate');
+
         if (!title) {
             alert('Please enter a title for your trip');
             return;
         }
-        
+
         if (selectedLocations.length === 0) {
             alert('Please add at least one location to your trip');
             return;
         }
-        
-        // Format locations for API, ensuring all coordinates are valid
-        const locations = selectedLocations.map(loc => {
-            const lat = parseFloat(loc.latitude);
-            const lon = parseFloat(loc.longitude);
+
+        // Get the date values and validate them
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+
+        if (startDate && endDate) {
+            const startUTC = new Date(Date.UTC(
+                ...startDate.split('-').map(Number)
+            ));
+            const endUTC = new Date(Date.UTC(
+                ...endDate.split('-').map(Number)
+            ));
             
-            if (isNaN(lat) || isNaN(lon)) {
-                throw new Error(`Invalid coordinates for location: ${loc.name}`);
+            if (startUTC > endUTC) {
+                alert('End date must be after start date');
+                return;
             }
-            
-            return {
+        }
+
+        const tripData = {
+            title,
+            description,
+            start_date: startDate || null,
+            end_date: endDate || null,
+            locations: selectedLocations.map((loc, index) => ({
                 name: loc.name,
-                lat: lat,
-                lon: lon
-            };
-        });
-        
-        const response = await fetch(`/api/trips/${currentTrip.id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                title,
-                description,
-                locations
-            })
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                latitude: loc.latitude,
+                longitude: loc.longitude
+            }))
+        };
+
+        try {
+            const response = await fetch(`/api/trips/${currentTrip.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(tripData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+
+            const { trip: updatedTrip } = await response.json();
+            if (!updatedTrip) {
+                throw new Error('No trip data received from server');
+            }
+
+            // Update UI with the fresh trip data
+            showTripDetails(updatedTrip);
+        } catch (error) {
+            console.error('Error updating trip:', error);
+            alert('Failed to update trip. Please try again.');
         }
-        
-        const { trip: updatedTrip } = await response.json();
-        if (!updatedTrip) {
-            throw new Error('No trip data received from server');
-        }
-        
-        // Update UI with the fresh trip data
-        showTripDetails(updatedTrip);
-        
     } catch (error) {
         console.error('Error updating trip:', error);
         alert('Failed to update trip. Please try again.');
@@ -634,6 +648,17 @@ function showTripDetails(trip) {
     titleElement.textContent = trip.title;
     descriptionElement.textContent = trip.description || '';
     
+    // Format and display dates if they exist
+    const dateSection = document.getElementById('tripViewDates');
+    if (trip.start_date || trip.end_date) {
+        const startDate = trip.start_date ? formatDateForDisplay(trip.start_date) : 'Not specified';
+        const endDate = trip.end_date ? formatDateForDisplay(trip.end_date) : 'Not specified';
+        dateSection.innerHTML = `<strong>Dates:</strong> ${startDate} to ${endDate}`;
+        dateSection.style.display = 'block';
+    } else {
+        dateSection.style.display = 'none';
+    }
+
     // Update locations list
     locationsList.innerHTML = '';
     
@@ -670,30 +695,32 @@ function showTripDetails(trip) {
 }
 
 function startEditTrip() {
-    if (!currentTrip) {
-        console.error('No trip to edit');
-        return;
-    }
-
+    if (!currentTrip) return;
+    
     editMode = true;
-    
-    // Update edit form
-    document.getElementById('editTripTitle').value = currentTrip.title;
-    document.getElementById('editTripDescription').value = currentTrip.description || '';
-    
-    // Copy trip locations to selectedLocations with consistent property names
     selectedLocations = currentTrip.locations.map(loc => ({
         name: loc.name,
-        latitude: parseFloat(loc.lat || loc.latitude),
-        longitude: parseFloat(loc.lon || loc.longitude)
-    })).filter(loc => {
-        const isValid = !isNaN(loc.latitude) && !isNaN(loc.longitude);
-        if (!isValid) {
-            console.warn('Filtered out invalid location:', loc);
-        }
-        return isValid;
-    });
-
+        latitude: loc.latitude || loc.lat,
+        longitude: loc.longitude || loc.lon
+    }));
+    
+    // Update edit form
+    const titleInput = document.getElementById('editTripTitle');
+    const descriptionInput = document.getElementById('editTripDescription');
+    const startDateInput = document.getElementById('editTripStartDate');
+    const endDateInput = document.getElementById('editTripEndDate');
+    
+    if (titleInput) titleInput.value = currentTrip.title;
+    if (descriptionInput) descriptionInput.value = currentTrip.description || '';
+    
+    // Format dates for input fields (YYYY-MM-DD)
+    if (startDateInput && currentTrip.start_date) {
+        startDateInput.value = formatDateForInput(currentTrip.start_date);
+    }
+    if (endDateInput && currentTrip.end_date) {
+        endDateInput.value = formatDateForInput(currentTrip.end_date);
+    }
+    
     // Show edit form and hide others
     const views = {
         'tripViewMode': 'none',
@@ -701,18 +728,19 @@ function startEditTrip() {
         'tripEditMode': 'block',
         'newTripForm': 'none'
     };
-
+    
     Object.entries(views).forEach(([id, display]) => {
         const element = document.getElementById(id);
         if (element) {
             element.style.display = display;
         }
     });
-
-    // Update locations list and map
+    
+    // Update locations list
     updateLocationsList();
-    updateMap();
-    setupDragAndDrop();
+    
+    // Update map
+    displayLocationsOnMap(selectedLocations);
 }
 
 function cancelEdit() {
@@ -753,7 +781,11 @@ function clearForms() {
         'editTripTitle': '',
         'editTripDescription': '',
         'tripTitle': '',
-        'tripDescription': ''
+        'tripDescription': '',
+        'tripStartDate': '',
+        'tripEndDate': '',
+        'editTripStartDate': '',
+        'editTripEndDate': ''
     };
 
     Object.entries(formFields).forEach(([id, value]) => {
@@ -783,9 +815,10 @@ function closeTrip() {
 function clearTripForm() {
     document.getElementById('tripTitle').value = '';
     document.getElementById('tripDescription').value = '';
+    document.getElementById('tripStartDate').value = '';
+    document.getElementById('tripEndDate').value = '';
     selectedLocations = [];
-    updateLocationsList();
-    updateMap();
+    updateNewTripLocations();
 }
 
 function cancelNewTrip() {
@@ -802,6 +835,8 @@ function cancelNewTrip() {
 async function saveNewTrip() {
     const title = document.getElementById('tripTitle').value.trim();
     const description = document.getElementById('tripDescription').value.trim();
+    const startDate = document.getElementById('tripStartDate').value;
+    const endDate = document.getElementById('tripEndDate').value;
 
     if (!title) {
         alert('Please enter a title for the trip');
@@ -813,9 +848,16 @@ async function saveNewTrip() {
         return;
     }
 
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+        alert('End date must be after start date');
+        return;
+    }
+
     const tripData = {
         title,
         description,
+        start_date: startDate || null,
+        end_date: endDate || null,
         locations: selectedLocations.map(loc => ({
             name: loc.name,
             lat: parseFloat(loc.latitude || loc.lat),
@@ -843,37 +885,6 @@ async function saveNewTrip() {
     } catch (error) {
         console.error('Error creating trip:', error);
         alert('Failed to create trip. Please try again.');
-    }
-}
-
-async function deleteTrip(tripId) {
-    if (!tripId) {
-        console.error('No trip ID provided for deletion');
-        return;
-    }
-
-    if (!confirm('Are you sure you want to delete this trip?')) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/trips/${tripId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        // Refresh the trips list
-        await loadTrips();
-        showTripsList();
-    } catch (error) {
-        console.error('Error deleting trip:', error);
-        alert('Failed to delete trip. Please try again.');
     }
 }
 
@@ -945,6 +956,24 @@ function updateNewTripLocations() {
 
     // Update map with current locations
     updateMap();
+}
+
+// Helper function to format dates for display
+function formatDateForDisplay(dateStr) {
+    if (!dateStr) return 'Not specified';
+    
+    // Simply format the ISO date string without timezone adjustments
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString();
+}
+
+// Helper function to format dates for input fields
+function formatDateForInput(dateStr) {
+    if (!dateStr) return '';
+    
+    // For input fields, just return the ISO date string as is
+    // since we're dealing with date-only values (not timestamps)
+    return dateStr;
 }
 
 // Function to animate path with pulses
@@ -1019,4 +1048,35 @@ function animatePathWithPulses(pathCoordinates) {
     pathGroup.addLayer(animatedPath3);
 
     return pathGroup;
+}
+
+async function deleteTrip(tripId) {
+    if (!tripId) {
+        console.error('No trip ID provided for deletion');
+        return;
+    }
+
+    if (!confirm('Are you sure you want to delete this trip?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/trips/${tripId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Refresh the trips list
+        await loadTrips();
+        showTripsList();
+    } catch (error) {
+        console.error('Error deleting trip:', error);
+        alert('Failed to delete trip. Please try again.');
+    }
 }

@@ -17,7 +17,7 @@
         <!-- Trip View Mode -->
         <div id="tripViewMode" style="display: none;">
             <div class="view-header">
-                <button class="back-arrow" onclick="closeTrip()">
+                <button class="back-arrow" onclick="showTripsList()">
                     <i class="fas fa-arrow-left"></i>
                 </button>
                 <h3 id="viewTripTitle"></h3>
@@ -32,9 +32,19 @@
                 <div class="view-actions">
                     <button onclick="startEditTrip()" class="btn btn-primary">edit trip</button>
                     <button onclick="deleteTrip()" class="btn btn-danger">delete trip</button>
-                    <button onclick="closeTrip()" class="btn btn-outline-secondary">close</button>
                 </div>
             </div>
+        </div>
+
+        <!-- Location View Mode -->
+        <div id="locationViewMode" style="display: none;">
+            <div class="view-header">
+                <button class="back-arrow" id="backToTrip">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h3>Location Details</h3>
+            </div>
+            <div class="view-content"></div>
         </div>
 
         <!-- Trip Edit Mode -->

@@ -868,204 +868,6 @@ path.leaflet-interactive {
     backdrop-filter: blur(10px);
 }
 
-.trips-header h3, .view-header h3, .edit-header h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-}
-
-/* Trip List Styles */
-#tripsList {
-    padding: 1.5rem;
-}
-
-.list-group-item {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.list-group-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: var(--accent-color);
-}
-
-.list-group-item h5 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.list-group-item p {
-    margin: 0.5rem 0;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.5;
-}
-
-.list-group-item small {
-    display: block;
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    margin-top: 0.5rem;
-}
-
-/* Form Styles */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--text-color);
-    font-size: 0.95rem;
-}
-
-.form-control {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    transition: border-color 0.2s ease;
-    background-color: #ffffff;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: var(--accent-color);
-}
-
-.form-divider {
-    border: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    margin: 1.5rem 0;
-}
-
-/* Search Styles */
-.search-container {
-    position: relative;
-    margin-bottom: 1rem;
-}
-
-.search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1000;
-}
-
-.search-result {
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.search-result:last-child {
-    border-bottom: none;
-}
-
-.search-result:hover {
-    background: rgba(139, 75, 168, 0.1);
-}
-
-.search-error {
-    padding: 0.75rem 1rem;
-    color: #dc3545;
-    text-align: center;
-}
-
-.form-control {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 14px;
-    transition: all 0.2s ease;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(139, 75, 168, 0.1);
-}
-
-/* Location List Styles */
-.location-list {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0;
-}
-
-.location-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-    transition: all 0.2s ease;
-}
-
-.location-content {
-    flex: 1;
-}
-
-.location-name {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-}
-
-.location-coordinates {
-    font-size: 12px;
-    color: var(--text-secondary);
-}
-
-.btn-remove {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 0.5rem;
-    margin-left: 0.5rem;
-    opacity: 0.5;
-    transition: opacity 0.2s ease;
-}
-
-.btn-remove:hover {
-    opacity: 1;
-    color: #dc3545;
-}
-
-/* Common Panel Headers */
-.trips-header, .view-header, .edit-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    background: inherit;
-    backdrop-filter: blur(10px);
-}
-
 .trips-header h3, .view-header h3, .edit-header h3, #viewTripTitle {
     margin: 0;
     font-size: 1.5rem;
@@ -1579,4 +1381,135 @@ path.leaflet-interactive {
 .trip-dates strong {
     color: var(--text-color);
     margin-right: 0.5rem;
+}
+
+.location-details {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+.location-details h5 {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
+
+.location-details p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.location-item {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.location-item:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(139, 75, 168, 0.1);
+}
+
+.location-name {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.remove-location {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.remove-location:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.no-trips-message, .error-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+
+.no-trips-message p:first-child, .error-message p:first-child {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.no-trips-message p:last-child, .error-message p:last-child {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.error-message {
+    color: #dc3545;
+}
+
+/* Trip List Styles */
+#tripsList {
+    padding: 1rem;
+}
+
+.list-group-item {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(139, 75, 168, 0.1);
+}
+
+.list-group-item:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(139, 75, 168, 0.1);
+}
+
+.list-group-item h5 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.list-group-item p {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.list-group-item small {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.trips-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(139, 75, 168, 0.1);
+}
+
+.trips-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
 }

@@ -30,6 +30,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Setup drag and drop
     setupDragAndDrop();
+    
+    // Add back button handler for location view
+    document.getElementById('backToTrip').addEventListener('click', () => {
+        if (currentTrip) {
+            showTripDetails(currentTrip);
+        }
+    });
 });
 
 function setupEventListeners() {
@@ -143,6 +150,7 @@ function displayLocationsOnMap(locations) {
         
         return {
             name: loc.name,
+            display_name: loc.display_name,
             latitude: lat,
             longitude: lon
         };
@@ -224,8 +232,8 @@ function addLocation(location) {
     console.log('Adding location:', location);
     try {
         // Validate coordinates
-        const lat = parseFloat(location.latitude || location.lat);
-        const lon = parseFloat(location.longitude || location.lon);
+        const lat = parseFloat(location.lat || location.latitude);
+        const lon = parseFloat(location.lon || location.longitude);
         
         if (isNaN(lat) || isNaN(lon)) {
             throw new Error('Invalid coordinates provided');
@@ -234,6 +242,7 @@ function addLocation(location) {
         // Add to selected locations with consistent property names
         selectedLocations.push({
             name: location.name,
+            display_name: location.display_name,
             latitude: lat,
             longitude: lon
         });
@@ -479,6 +488,7 @@ async function setupSearchInput() {
                             console.log('Selected location:', location);
                             addLocation({
                                 name: location.name,
+                                display_name: location.display_name,
                                 latitude: location.latitude,
                                 longitude: location.longitude
                             });
@@ -502,6 +512,9 @@ async function loadTrips() {
     console.log('Loading trips...');
     try {
         const response = await fetch('/api/trips');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         console.log('Got trips data:', data);
         
@@ -514,7 +527,7 @@ async function loadTrips() {
         document.getElementById('tripViewMode').style.display = 'none';
         document.getElementById('tripEditMode').style.display = 'none';
         
-        if (data.trips && Array.isArray(data.trips)) {
+        if (data.trips && data.trips.length > 0) {
             data.trips.forEach(trip => {
                 const tripItem = document.createElement('div');
                 tripItem.className = 'list-group-item';
@@ -533,12 +546,24 @@ async function loadTrips() {
             });
             console.log('Trips loaded successfully');
         } else {
-            console.error('No trips array in response:', data);
-            tripsList.innerHTML = '<p>No trips found</p>';
+            console.log('No trips found');
+            const noTripsMessage = document.createElement('div');
+            noTripsMessage.className = 'no-trips-message';
+            noTripsMessage.innerHTML = `
+                <p>No trips found</p>
+                <p>Click "New Trip" to create your first trip!</p>
+            `;
+            tripsList.appendChild(noTripsMessage);
         }
     } catch (error) {
         console.error('Error loading trips:', error);
-        document.getElementById('tripsList').innerHTML = '<p>Error loading trips</p>';
+        const tripsList = document.getElementById('tripsList');
+        tripsList.innerHTML = `
+            <div class="error-message">
+                <p>Error loading trips</p>
+                <p>Please try refreshing the page</p>
+            </div>
+        `;
     }
 }
 
@@ -554,7 +579,7 @@ async function updateTrip() {
         const endDateInput = document.getElementById('editTripEndDate');
 
         if (!title) {
-            alert('Please enter a title for your trip');
+            alert('Please enter a trip title');
             return;
         }
 
@@ -588,6 +613,7 @@ async function updateTrip() {
             end_date: endDate || null,
             locations: selectedLocations.map((loc, index) => ({
                 name: loc.name,
+                display_name: loc.display_name,
                 latitude: loc.latitude,
                 longitude: loc.longitude
             }))
@@ -612,6 +638,17 @@ async function updateTrip() {
                 throw new Error('No trip data received from server');
             }
 
+            // Update currentTrip with the fresh data
+            currentTrip = updatedTrip;
+            
+            // Clear selected locations and update with fresh data
+            selectedLocations = updatedTrip.locations.map(loc => ({
+                name: loc.name,
+                display_name: loc.display_name,
+                latitude: loc.latitude,
+                longitude: loc.longitude
+            }));
+
             // Update UI with the fresh trip data
             showTripDetails(updatedTrip);
         } catch (error) {
@@ -624,74 +661,118 @@ async function updateTrip() {
     }
 }
 
+function showLocationDetails(location, tripTitle, locationIndex, totalLocations) {
+    // Hide other views
+    document.getElementById('tripListMode').style.display = 'none';
+    document.getElementById('tripsList').style.display = 'none';
+    document.getElementById('newTripForm').style.display = 'none';
+    document.getElementById('tripViewMode').style.display = 'none';
+    document.getElementById('tripEditMode').style.display = 'none';
+    
+    // Show location view
+    const locationView = document.getElementById('locationViewMode');
+    locationView.style.display = 'block';
+    
+    // Update location view content
+    const viewContent = locationView.querySelector('.view-content');
+    viewContent.innerHTML = `
+        <p class="text-muted">Stop ${locationIndex + 1} of ${totalLocations}</p>
+        <div class="location-details">
+            <h5>Address</h5>
+            <p>${location.display_name}</p>
+        </div>
+    `;
+    
+    // Update header title
+    locationView.querySelector('h3').textContent = location.name;
+    
+    // Add back button handler
+    document.getElementById('backToTrip').addEventListener('click', () => {
+        showTripDetails(currentTrip);
+    });
+    
+    // Zoom map to location with padding for the panel
+    map.setView([location.latitude, location.longitude], 14, {
+        paddingTopLeft: [400, 0],
+        animate: true,
+        duration: 1.0
+    });
+}
+
 function showTripDetails(trip) {
-    if (!trip || !trip.locations) {
-        console.error('Invalid trip data:', trip);
-        showTripsList();
-        return;
-    }
-
-    clearForms();
+    console.log('Showing trip details:', trip);
     currentTrip = trip;
-    editMode = false;
     
-    // Update view form
-    const titleElement = document.getElementById('viewTripTitle');
-    const descriptionElement = document.getElementById('viewTripDescription');
-    const locationsList = document.getElementById('viewLocations');
+    // Hide other views, show trip view
+    document.getElementById('tripListMode').style.display = 'none';
+    document.getElementById('tripsList').style.display = 'none';
+    document.getElementById('newTripForm').style.display = 'none';
+    document.getElementById('tripEditMode').style.display = 'none';
+    document.getElementById('locationViewMode').style.display = 'none';
     
-    if (!titleElement || !descriptionElement || !locationsList) {
-        console.error('Required elements not found');
-        return;
-    }
-
-    titleElement.textContent = trip.title;
-    descriptionElement.textContent = trip.description || '';
+    const tripView = document.getElementById('tripViewMode');
+    tripView.style.display = 'block';
     
-    // Format and display dates if they exist
-    const dateSection = document.getElementById('tripViewDates');
-    if (trip.start_date || trip.end_date) {
-        const startDate = trip.start_date ? formatDateForDisplay(trip.start_date) : 'Not specified';
-        const endDate = trip.end_date ? formatDateForDisplay(trip.end_date) : 'Not specified';
-        dateSection.innerHTML = `<strong>Dates:</strong> ${startDate} to ${endDate}`;
-        dateSection.style.display = 'block';
-    } else {
-        dateSection.style.display = 'none';
-    }
-
-    // Update locations list
-    locationsList.innerHTML = '';
+    // Format dates
+    const startDate = formatDateForDisplay(trip.start_date);
+    const endDate = formatDateForDisplay(trip.end_date);
     
-    trip.locations.forEach(location => {
-        const li = document.createElement('li');
-        li.className = 'location-item';
-        li.textContent = location.name;
-        locationsList.appendChild(li);
-    });
-
-    // Add delete button functionality
-    const deleteButton = document.querySelector('.btn-danger');
-    if (deleteButton) {
-        deleteButton.onclick = () => deleteTrip(currentTrip.id);
-    }
-
-    // Show view form and hide others
-    const views = {
-        'tripViewMode': 'block',
-        'tripListMode': 'none',
-        'tripEditMode': 'none',
-        'newTripForm': 'none'
-    };
-
-    Object.entries(views).forEach(([id, display]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.style.display = display;
-        }
+    // Update view content
+    const viewContent = tripView.querySelector('.view-content');
+    viewContent.innerHTML = `
+        <p class="trip-description">${trip.description || ''}</p>
+        <p class="trip-dates">From ${startDate} to ${endDate}</p>
+        <hr class="form-divider">
+        <h4 class="section-title">Locations</h4>
+        <div class="locations-list">
+            ${trip.locations.map((location, index) => `
+                <div class="location-item" data-location-index="${index}">
+                    <span class="location-name">${location.name}</span>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            `).join('')}
+        </div>
+        <hr class="form-divider">
+        <div class="view-actions">
+            <button class="btn btn-primary" id="editTrip">
+                <i class="fas fa-edit"></i> Edit Trip
+            </button>
+            <button class="btn btn-danger" onclick="deleteTrip(${trip.id})">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </div>
+    `;
+    
+    // Update header title
+    tripView.querySelector('#viewTripTitle').textContent = trip.title;
+    
+    // Add click handlers for locations
+    const locationItems = viewContent.querySelectorAll('.location-item');
+    locationItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const index = parseInt(item.dataset.locationIndex);
+            const location = trip.locations[index];
+            showLocationDetails(location, trip.title, index, trip.locations.length);
+        });
     });
     
-    // Update map
+    // Add edit button handler
+    document.getElementById('editTrip').addEventListener('click', startEditTrip);
+    
+    // Display locations on map
     displayLocationsOnMap(trip.locations);
+    
+    // Fit map to show all locations
+    if (trip.locations.length > 0) {
+        const bounds = L.latLngBounds(trip.locations.map(loc => [loc.latitude, loc.longitude]));
+        map.fitBounds(bounds, { 
+            paddingTopLeft: [400, 0],  // Account for the text pane
+            paddingBottomRight: [24, 24],
+            maxZoom: 12,
+            animate: true,
+            duration: 1.0
+        });
+    }
 }
 
 function startEditTrip() {
@@ -700,8 +781,9 @@ function startEditTrip() {
     editMode = true;
     selectedLocations = currentTrip.locations.map(loc => ({
         name: loc.name,
-        latitude: loc.latitude || loc.lat,
-        longitude: loc.longitude || loc.lon
+        display_name: loc.display_name,
+        latitude: loc.latitude,
+        longitude: loc.longitude
     }));
     
     // Update edit form
@@ -760,7 +842,8 @@ function showTripsList() {
         'tripListMode': 'block',
         'tripViewMode': 'none',
         'tripEditMode': 'none',
-        'newTripForm': 'none'
+        'newTripForm': 'none',
+        'locationViewMode': 'none'
     };
 
     Object.entries(views).forEach(([id, display]) => {
@@ -770,7 +853,11 @@ function showTripsList() {
         }
     });
 
+    // Clear map
     clearMap();
+    
+    // Reload trips
+    loadTrips();
 }
 
 function clearForms() {
@@ -860,8 +947,8 @@ async function saveNewTrip() {
         end_date: endDate || null,
         locations: selectedLocations.map(loc => ({
             name: loc.name,
-            lat: parseFloat(loc.latitude || loc.lat),
-            lon: parseFloat(loc.longitude || loc.lon)
+            latitude: loc.latitude,
+            longitude: loc.longitude
         }))
     };
 

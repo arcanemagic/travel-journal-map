@@ -38,20 +38,42 @@ migrate = Migrate(app, db)
 
 class Trip(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    start_date = db.Column(db.Date, nullable=True)
-    end_date = db.Column(db.Date, nullable=True)
-    locations = db.relationship('Location', backref='trip', lazy=True, order_by='Location.order', cascade='all, delete-orphan')
+    locations = db.relationship('Location', backref='trip', lazy=True, order_by='Location.order')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'start_date': self.start_date.isoformat() if self.start_date else None,
+            'end_date': self.end_date.isoformat() if self.end_date else None,
+            'locations': [location.to_dict() for location in self.locations]
+        }
 
 class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(200), nullable=False)  # From Nominatim's name field
+    display_name = db.Column(db.String(500), nullable=False)  # From Nominatim's display_name field
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
     order = db.Column(db.Integer, nullable=False)
     trip_id = db.Column(db.Integer, db.ForeignKey('trip.id'), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'display_name': self.display_name,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'order': self.order
+        }
 
 def init_db():
     with app.app_context():
@@ -74,7 +96,7 @@ def search_location():
 
     try:
         # Use Nominatim for geocoding
-        url = f'https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=5'
+        url = f'https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=5&addressdetails=1'
         headers = {'User-Agent': 'TravelJournalApp/1.0'}
         
         logger.info(f'Searching for location: {query}')
@@ -88,14 +110,23 @@ def search_location():
         
         for result in results:
             try:
+                logger.info(f'Processing result: {result}')
                 lat = float(result.get('lat', 0))
                 lon = float(result.get('lon', 0))
                 
                 if lat == 0 and lon == 0:
                     continue
+
+                # Get the most appropriate name
+                name = result.get('address', {}).get('house_number', '')
+                if name:
+                    name = f"{name} {result.get('address', {}).get('road', '')}"
+                else:
+                    name = result.get('display_name', '').split(',')[0].strip()
                     
                 location = {
-                    'name': result.get('display_name', ''),
+                    'name': name,
+                    'display_name': result.get('display_name', ''),
                     'latitude': lat,
                     'longitude': lon
                 }
@@ -116,25 +147,13 @@ def search_location():
 def get_trips():
     try:
         logger.info("Fetching all trips...")
-        trips = Trip.query.order_by(Trip.created_at.desc()).all()
+        trips = Trip.query.order_by(Trip.id.desc()).all()
         logger.info(f"Found {len(trips)} trips")
         
         trip_list = []
         for trip in trips:
             try:
-                trip_data = {
-                    'id': trip.id,
-                    'title': trip.title,
-                    'description': trip.description,
-                    'created_at': trip.created_at.isoformat() if trip.created_at else None,
-                    'start_date': trip.start_date.isoformat() if trip.start_date else None,
-                    'end_date': trip.end_date.isoformat() if trip.end_date else None,
-                    'locations': [{
-                        'name': loc.name,
-                        'lat': loc.latitude,
-                        'lon': loc.longitude
-                    } for loc in trip.locations]
-                }
+                trip_data = trip.to_dict()
                 trip_list.append(trip_data)
             except Exception as trip_error:
                 logger.error(f"Error processing trip {trip.id}: {str(trip_error)}")
@@ -176,6 +195,7 @@ def create_trip():
         for i, loc_data in enumerate(data['locations']):
             location = Location(
                 name=loc_data['name'],
+                display_name=loc_data.get('display_name', loc_data['name']),
                 latitude=float(loc_data.get('lat', loc_data.get('latitude', 0))),
                 longitude=float(loc_data.get('lon', loc_data.get('longitude', 0))),
                 order=i,
@@ -205,13 +225,14 @@ def get_trip(trip_id):
                 'id': trip.id,
                 'title': trip.title,
                 'description': trip.description,
-                'created_at': trip.created_at.isoformat(),
+                'created_at': trip.created_at.isoformat() if trip.created_at else None,
                 'start_date': trip.start_date.isoformat() if trip.start_date else None,
                 'end_date': trip.end_date.isoformat() if trip.end_date else None,
                 'locations': [{
                     'name': loc.name,
-                    'lat': loc.latitude,
-                    'lon': loc.longitude
+                    'display_name': loc.display_name,
+                    'latitude': loc.latitude,
+                    'longitude': loc.longitude
                 } for loc in trip.locations]
             }
         })
@@ -269,6 +290,7 @@ def update_trip(trip_id):
                     
                 location = Location(
                     name=loc_data['name'],
+                    display_name=loc_data.get('display_name', loc_data['name']),
                     latitude=latitude,
                     longitude=longitude,
                     order=i,
@@ -293,6 +315,7 @@ def update_trip(trip_id):
                 'end_date': trip.end_date.isoformat() if trip.end_date else None,
                 'locations': [{
                     'name': loc.name,
+                    'display_name': loc.display_name,
                     'latitude': loc.latitude,
                     'longitude': loc.longitude
                 } for loc in trip.locations]

@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from datetime import datetime, date
 import requests
 import os
@@ -34,7 +33,6 @@ app.config['SQLALCHEMY_ECHO'] = True  # Log all SQL queries
 
 # Initialize database
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 
 class Trip(db.Model):
     id = db.Column(db.Integer, primary_key=True)

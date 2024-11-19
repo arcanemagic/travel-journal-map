@@ -118,11 +118,14 @@ def search_location():
                     continue
 
                 # Get the most appropriate name
-                name = result.get('address', {}).get('house_number', '')
-                if name:
-                    name = f"{name} {result.get('address', {}).get('road', '')}"
-                else:
-                    name = result.get('display_name', '').split(',')[0].strip()
+                name = result.get('name')  # First try to get Nominatim's name field
+                if not name:
+                    # Fall back to our custom logic
+                    name = result.get('address', {}).get('house_number', '')
+                    if name:
+                        name = f"{name} {result.get('address', {}).get('road', '')}"
+                    else:
+                        name = result.get('display_name', '').split(',')[0].strip()
                     
                 location = {
                     'name': name,

@@ -276,6 +276,11 @@ def update_trip(trip_id):
         trip.start_date = parse_date(data.get('start_date'))
         trip.end_date = parse_date(data.get('end_date'))
         
+        # Log existing locations before removal
+        logger.debug("Existing locations before removal:")
+        for loc in trip.locations:
+            logger.debug(f"Location: name={loc.name}, display_name={loc.display_name}")
+        
         # Remove old locations
         Location.query.filter_by(trip_id=trip_id).delete()
         
@@ -287,15 +292,17 @@ def update_trip(trip_id):
                 
                 if not latitude or not longitude:
                     raise ValueError('Missing or invalid coordinates')
-                    
+                
+                logger.debug(f"Creating new location with data: {loc_data}")
                 location = Location(
                     name=loc_data['name'],
-                    display_name=loc_data.get('display_name', loc_data['name']),
+                    display_name=loc_data.get('display_name'),  # Use the provided display_name
                     latitude=latitude,
                     longitude=longitude,
                     order=i,
                     trip_id=trip_id
                 )
+                logger.debug(f"New location created: name={location.name}, display_name={location.display_name}")
                 db.session.add(location)
             except (KeyError, ValueError, TypeError) as e:
                 logger.error(f"Error processing location data: {loc_data}")

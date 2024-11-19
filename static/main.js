@@ -229,7 +229,7 @@ function updateMap() {
 }
 
 function addLocation(location) {
-    console.log('Adding location:', location);
+    console.log('Adding location with display_name:', location.display_name);
     try {
         // Validate coordinates
         const lat = parseFloat(location.lat || location.latitude);
@@ -246,6 +246,7 @@ function addLocation(location) {
             latitude: lat,
             longitude: lon
         });
+        console.log('Location added to selectedLocations:', selectedLocations[selectedLocations.length - 1]);
         
         // Update both lists and map
         updateLocationsList();
@@ -621,16 +622,21 @@ async function updateTrip() {
             }
         }
 
+        console.log('Updating trip with locations:', selectedLocations);
         const tripData = {
             title,
             description,
             start_date: startDate || null,
             end_date: endDate || null,
-            locations: selectedLocations.map((loc, index) => ({
-                name: loc.name,
-                latitude: loc.latitude,
-                longitude: loc.longitude
-            }))
+            locations: selectedLocations.map((loc, index) => {
+                console.log('Sending location data:', loc);
+                return {
+                    name: loc.name,
+                    display_name: loc.display_name,
+                    latitude: loc.latitude,
+                    longitude: loc.longitude
+                };
+            })
         };
 
         try {
@@ -676,6 +682,7 @@ async function updateTrip() {
 }
 
 function showLocationDetails(location, tripTitle, locationIndex, totalLocations) {
+    console.log('Showing location details, display_name:', location.display_name);
     // Hide other views
     document.getElementById('tripListMode').style.display = 'none';
     document.getElementById('tripsList').style.display = 'none';
@@ -936,31 +943,47 @@ function cancelNewTrip() {
 async function saveNewTrip() {
     const title = document.getElementById('tripTitle').value.trim();
     const description = document.getElementById('tripDescription').value.trim();
-    const startDate = document.getElementById('tripStartDate').value;
-    const endDate = document.getElementById('tripEndDate').value;
+    const startDateInput = document.getElementById('tripStartDate');
+    const endDateInput = document.getElementById('tripEndDate');
 
     if (!title) {
-        alert('Please enter a title for the trip');
+        alert('Please enter a trip title');
         return;
     }
 
     if (selectedLocations.length === 0) {
-        alert('Please add at least one location to the trip');
+        alert('Please add at least one location to your trip');
         return;
     }
 
-    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-        alert('End date must be after start date');
-        return;
+    // Get the date values
+    const startDate = startDateInput ? startDateInput.value : null;
+    const endDate = endDateInput ? endDateInput.value : null;
+
+    // Validate dates if both are provided
+    if (startDate && endDate) {
+        const startUTC = new Date(Date.UTC(
+            ...startDate.split('-').map(Number)
+        ));
+        const endUTC = new Date(Date.UTC(
+            ...endDate.split('-').map(Number)
+        ));
+        
+        if (startUTC > endUTC) {
+            alert('End date must be after start date');
+            return;
+        }
     }
 
+    console.log('Saving new trip with locations:', selectedLocations);
     const tripData = {
         title,
         description,
-        start_date: startDate || null,
-        end_date: endDate || null,
+        start_date: startDate,
+        end_date: endDate,
         locations: selectedLocations.map(loc => ({
             name: loc.name,
+            display_name: loc.display_name,
             latitude: loc.latitude,
             longitude: loc.longitude
         }))
@@ -977,15 +1000,22 @@ async function saveNewTrip() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            throw new Error(errorData.error || 'Failed to save trip');
         }
 
-        // Close new trip form and refresh trips list
-        cancelNewTrip();
-        loadTrips();
+        // Clear form and selected locations
+        clearTripForm();
+        selectedLocations = [];
+        updateLocationsList();
+        updateMap();
+
+        // Show trips list and reload trips
+        showTripsList();
+        await loadTrips();
+
     } catch (error) {
-        console.error('Error creating trip:', error);
-        alert('Failed to create trip. Please try again.');
+        console.error('Error saving trip:', error);
+        alert('Failed to save trip: ' + error.message);
     }
 }
 

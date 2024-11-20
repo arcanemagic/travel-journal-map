@@ -759,7 +759,7 @@ function showTripDetails(trip) {
                 Edit Trip <i class="fas fa-pencil-alt"></i>
             </button>
             <button class="btn btn-danger" onclick="deleteTrip(${trip.id})">
-                Delete <i class="fas fa-trash-alt"></i>
+                Delete Trip <i class="fas fa-trash-alt"></i>
             </button>
         </div>
     `;

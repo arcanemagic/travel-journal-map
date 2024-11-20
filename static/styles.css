@@ -117,7 +117,7 @@ body {
     margin-bottom: 0.75rem;
     font-size: 0.9rem;
     color: var(--text-secondary);
-    text-transform: lowercase;
+    text-transform: none;
     letter-spacing: 0.02em;
 }
 
@@ -332,7 +332,7 @@ input[type="text"]#editTripTitle {
     font-weight: 500;
     color: var(--text-color);
     font-size: 0.95rem;
-    text-transform: lowercase;
+    text-transform: none;
 }
 
 .form-control {
@@ -366,7 +366,7 @@ input[type="text"]#editTripTitle {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
-    text-transform: lowercase;
+    text-transform: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -670,7 +670,7 @@ path.leaflet-interactive {
 }
 
 .search-result-item {
-    padding: 0.75rem 1rem;
+    padding: 0.75rem;
     cursor: pointer;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     transition: all 0.2s ease;
@@ -893,7 +893,7 @@ path.leaflet-interactive {
     font-size: 1.5rem;
     font-weight: 600;
     flex-grow: 1;
-    text-transform: lowercase;
+    text-transform: none;
 }
 
 .back-arrow {
@@ -927,7 +927,7 @@ path.leaflet-interactive {
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
     color: var(--text-color);
-    text-transform: lowercase;
+    text-transform: none;
 }
 
 .form-control {
@@ -1030,7 +1030,7 @@ path.leaflet-interactive {
     font-size: 1.5rem;
     font-weight: 600;
     flex-grow: 1;
-    text-transform: lowercase;
+    text-transform: none;
 }
 
 .back-arrow {
@@ -1064,7 +1064,7 @@ path.leaflet-interactive {
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
     color: var(--text-color);
-    text-transform: lowercase;
+    text-transform: none;
 }
 
 .form-control {
@@ -1176,7 +1176,7 @@ path.leaflet-interactive {
 .location-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
     padding: 0.75rem;
     background: white;
     border: 1px solid var(--border-color);
@@ -1391,7 +1391,7 @@ path.leaflet-interactive {
 .location-details h5 {
     color: var(--text-secondary);
     font-size: 0.9rem;
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 0.05em;
     margin-bottom: 0.75rem;
 }
@@ -1509,6 +1509,7 @@ path.leaflet-interactive {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
+    text-transform: none;
 }
 
 /* Date picker styling */
@@ -1645,4 +1646,51 @@ input[type="date"]:hover {
 
 .location-item:hover {
     background-color: rgba(139, 75, 168, 0.05);
+}
+
+.trips-header h2, 
+.view-header h2,
+.edit-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    text-transform: none;
+}
+
+.trip-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.location-name {
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.trip-name {
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.trips-header h2, 
+.view-header h2,
+.edit-header h2,
+.section-title,
+.btn,
+label,
+.trips-header h3, 
+.view-header h3, 
+.edit-header h3 {
+    text-transform: lowercase;
+}
+
+.trips-header h3, 
+.view-header h3, 
+.edit-header h3,
+#viewTripTitle {
+    text-transform: none;
 }

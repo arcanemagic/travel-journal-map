@@ -26,12 +26,12 @@
                 <p id="viewTripDescription" class="trip-description"></p>
                 <p id="tripViewDates" class="trip-dates"></p>
                 <hr class="form-divider">
-                <h4 class="section-title">locations</h4>
+                <h4 class="section-title">Locations</h4>
                 <ul id="viewLocations" class="location-list"></ul>
                 <hr class="form-divider">
                 <div class="view-actions">
-                    <button onclick="startEditTrip()" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> edit trip</button>
-                    <button onclick="deleteTrip()" class="btn btn-danger"><i class="fas fa-trash-alt"></i> delete trip</button>
+                    <button onclick="startEditTrip()" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> Edit Trip</button>
+                    <button onclick="deleteTrip()" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Delete Trip</button>
                 </div>
             </div>
         </div>
@@ -53,33 +53,33 @@
                 <button class="back-arrow" onclick="cancelEdit()">
                     <i class="fas fa-arrow-left"></i>
                 </button>
-                <h3>edit trip</h3>
+                <h3>Edit Trip</h3>
             </div>
             <form id="editTripForm">
                 <div class="form-group">
-                    <label>title</label>
+                    <label>Title</label>
                     <input type="text" id="editTripTitle" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label>description</label>
+                    <label>Description</label>
                     <textarea id="editTripDescription" class="form-control" rows="3"></textarea>
                 </div>
                 <div class="form-group date-range">
-                    <label>trip dates</label>
+                    <label>Trip Dates</label>
                     <div class="date-inputs">
                         <div class="date-input">
-                            <label>from</label>
+                            <label>From</label>
                             <input type="date" id="editTripStartDate" class="form-control">
                         </div>
                         <div class="date-input">
-                            <label>to</label>
+                            <label>To</label>
                             <input type="date" id="editTripEndDate" class="form-control">
                         </div>
                     </div>
                 </div>
                 <hr class="form-divider">
                 <div class="form-group">
-                    <label class="section-title">locations</label>
+                    <label class="section-title">Locations</label>
                     <div class="search-container">
                         <input type="text" id="editSearchInput" class="form-control" placeholder="Search for a location...">
                         <div id="editSearchResults" class="search-results"></div>
@@ -88,8 +88,8 @@
                 </div>
                 <hr class="form-divider">
                 <div class="edit-actions">
-                    <button type="button" onclick="updateTrip()" class="btn btn-primary">save changes<i class="fas fa-check"></i></button>
-                    <button type="button" onclick="cancelEdit()" class="btn btn-outline-secondary">cancel<i class="fas fa-times"></i></button>
+                    <button type="button" onclick="updateTrip()" class="btn btn-primary">Save Changes<i class="fas fa-check"></i></button>
+                    <button type="button" onclick="cancelEdit()" class="btn btn-outline-secondary">Cancel<i class="fas fa-times"></i></button>
                 </div>
             </form>
         </div>
@@ -97,9 +97,9 @@
         <!-- Trip List Mode (Default) -->
         <div id="tripListMode">
             <div class="trips-header">
-                <h3>my trips</h3>
+                <h3>My Trips</h3>
                 <div class="header-actions">
-                    <button onclick="showNewTripForm()" class="btn btn-primary">new trip<i class="fas fa-plus"></i></button>
+                    <button onclick="showNewTripForm()" class="btn btn-primary">New Trip<i class="fas fa-plus"></i></button>
                 </div>
             </div>
             <div id="tripsList"></div>
@@ -115,29 +115,29 @@
             </div>
             <form>
                 <div class="form-group">
-                    <label>title</label>
+                    <label>Title</label>
                     <input type="text" id="tripTitle" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label>description</label>
+                    <label>Description</label>
                     <textarea id="tripDescription" class="form-control" rows="3"></textarea>
                 </div>
                 <div class="form-group date-range">
-                    <label>trip dates</label>
+                    <label>Trip Dates</label>
                     <div class="date-inputs">
                         <div class="date-input">
-                            <label>from</label>
+                            <label>From</label>
                             <input type="date" id="tripStartDate" class="form-control">
                         </div>
                         <div class="date-input">
-                            <label>to</label>
+                            <label>To</label>
                             <input type="date" id="tripEndDate" class="form-control">
                         </div>
                     </div>
                 </div>
                 <hr class="form-divider">
                 <div class="form-group">
-                    <label class="section-title">locations</label>
+                    <label class="section-title">Locations</label>
                     <div class="search-container">
                         <input type="text" id="newSearchInput" class="form-control" placeholder="Search for a location...">
                         <div id="newSearchResults" class="search-results"></div>
@@ -146,8 +146,8 @@
                 </div>
                 <hr class="form-divider">
                 <div class="edit-actions">
-                    <button type="button" onclick="saveNewTrip()" class="btn btn-primary">save trip<i class="fas fa-check"></i></button>
-                    <button type="button" onclick="cancelNewTrip()" class="btn btn-outline-secondary">cancel<i class="fas fa-times"></i></button>
+                    <button type="button" onclick="saveNewTrip()" class="btn btn-primary">Save Trip<i class="fas fa-check"></i></button>
+                    <button type="button" onclick="cancelNewTrip()" class="btn btn-outline-secondary">Cancel<i class="fas fa-times"></i></button>
                 </div>
             </form>
         </div>

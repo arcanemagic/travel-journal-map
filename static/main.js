@@ -695,8 +695,18 @@ async function updateTrip() {
 function handleBackToTrip() {
     const bounds = L.latLngBounds(currentTrip.locations.map(loc => [loc.latitude, loc.longitude]));
     
-    // Clear existing markers and path
-    clearMap();
+    // Clear existing path but keep markers
+    if (path) {
+        path.remove();
+        path = null;
+    }
+    
+    // Add markers for all locations immediately
+    currentTrip.locations.forEach(loc => {
+        const marker = createPulsingMarker([loc.latitude, loc.longitude]);
+        marker.addTo(map);
+        markers.push(marker);
+    });
     
     // First zoom out to show all trip locations
     isMapAnimating = true;
@@ -708,9 +718,8 @@ function handleBackToTrip() {
         easeLinearity: 0.1
     });
     
-    // Then show trip details without recreating the path
-    pendingViewTimeout = setTimeout(() => {
-        pendingViewTimeout = null;
+    // Wait for zoom to complete before showing trip details
+    map.once('moveend', () => {
         isMapAnimating = false;
         
         // Show trip view mode and hide others
@@ -720,13 +729,6 @@ function handleBackToTrip() {
         document.getElementById('tripEditMode').style.display = 'none';
         document.getElementById('newTripForm').style.display = 'none';
         
-        // Add markers for all locations
-        currentTrip.locations.forEach(loc => {
-            const marker = createPulsingMarker([loc.latitude, loc.longitude]);
-            marker.addTo(map);
-            markers.push(marker);
-        });
-
         // Create path after zoom completes
         if (currentTrip.locations.length > 1) {
             const pathCoordinates = currentTrip.locations.map(loc => [loc.latitude, loc.longitude]);
@@ -758,7 +760,7 @@ function handleBackToTrip() {
                 });
             });
         }
-    }, 1000);
+    });
 }
 
 function showLocationDetails(location, tripTitle, locationIndex, totalLocations) {

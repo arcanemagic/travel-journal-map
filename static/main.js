@@ -5,6 +5,8 @@ let path = null;
 let markers = [];
 let currentTrip = null;
 let editMode = false;
+let labelsLayer; // Declare labelsLayer variable
+let terrainLayer; // Declare terrainLayer variable
 
 // Track if map is currently animating and any pending view changes
 let isMapAnimating = false;
@@ -85,13 +87,13 @@ function initializeMap() {
     }).addTo(map);
 
     // Add terrain visualization using CARTO's hillshade
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
+    terrainLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
         opacity: 0.3  // Subtle terrain and features
     }).addTo(map);
 
     // Add crisp labels on top
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+    labelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors | &copy; <a href="https://carto.com/attributions" target="_blank">CARTO</a> | <a href="https://nominatim.org/" target="_blank">Nominatim</a> | <a href="https://fontawesome.com/license" target="_blank">Font Awesome</a> | Created by <a href="https://dhruv.tech" target="_blank">Dhruv Jain</a> with Cascade'
     }).addTo(map);
@@ -708,6 +710,9 @@ function handleBackToTrip() {
         markers.push(marker);
     });
     
+    // Fade out labels layers during animation
+    fadeOutLayers();
+    
     // First zoom out to show all trip locations
     isMapAnimating = true;
     map.flyToBounds(bounds, { 
@@ -721,6 +726,9 @@ function handleBackToTrip() {
     // Wait for zoom to complete before showing trip details
     map.once('moveend', () => {
         isMapAnimating = false;
+        
+        // Fade in labels layers
+        fadeInLayers();
         
         // Show trip view mode and hide others
         document.getElementById('tripListMode').style.display = 'none';
@@ -808,12 +816,18 @@ function showLocationDetails(location, tripTitle, locationIndex, totalLocations)
     backButton.addEventListener('click', handleBackToTrip);
     
     // Zoom map to location with smooth animation
+    fadeOutLayers();
     map.flyTo([location.latitude, location.longitude], 17, {
         duration: 2.0,
         easeLinearity: 0.25,
         paddingTopLeft: [400, 0]
     });
-    
+
+    map.once('moveend', () => {
+        // Fade in labels layers
+        fadeInLayers();
+    });
+
     // Clear any existing markers and paths
     clearMap();
     
@@ -840,6 +854,9 @@ function showTripDetails(trip, isFromEditMode = false) {
             markers.push(marker);
         });
 
+        // Fade out labels layers during animation
+        fadeOutLayers();
+
         // Skip animation if coming from edit mode
         if (!isFromEditMode) {
             // Start the zoom animation
@@ -855,6 +872,9 @@ function showTripDetails(trip, isFromEditMode = false) {
             // Reset animation flag when complete
             map.once('moveend', () => {
                 isMapAnimating = false;
+
+                // Fade in labels layers
+                fadeInLayers();
             });
         }
 
@@ -882,13 +902,10 @@ function showTripDetails(trip, isFromEditMode = false) {
                 // Wait for zoom to complete before showing animated path
                 map.once('moveend', () => {
                     // Only create path if we're not in location view
-                    if (document.getElementById('locationViewMode').style.display !== 'block' && 
-                        document.getElementById('tripListMode').style.display !== 'block') {
-                        if (basePath) basePath.remove();
-                        if (path) path.remove();
-                        path = animatePathWithPulses(pathCoordinates);
-                        if (path) path.addTo(map);
-                    }
+                    if (basePath) basePath.remove();
+                    if (path) path.remove();
+                    path = animatePathWithPulses(pathCoordinates);
+                    if (path) path.addTo(map);
                 });
             }
         }
@@ -1021,11 +1038,17 @@ function showTripsList() {
     document.getElementById('tripListMode').style.display = 'block';
     
     // Reset map view with animation - match initial view coordinates
+    fadeOutLayers();
     map.flyTo([30, -50], 3, {
         duration: 2.0,
         easeLinearity: 0.25
     });
-    
+
+    map.once('moveend', () => {
+        // Fade in labels layers
+        fadeInLayers();
+    });
+
     // Load trips
     loadTrips();
 }
@@ -1379,4 +1402,14 @@ async function deleteTrip() {
         console.error('Error deleting trip:', error);
         alert('Failed to delete trip. Please try again.');
     }
+}
+
+function fadeOutLayers() {
+    labelsLayer.setOpacity(0);
+    terrainLayer.setOpacity(0);
+}
+
+function fadeInLayers() {
+    labelsLayer.setOpacity(1);
+    terrainLayer.setOpacity(0.3);
 }

@@ -1694,3 +1694,7 @@ label,
 #viewTripTitle {
     text-transform: none;
 }
+
+#map .leaflet-tile-pane .leaflet-layer {
+    transition: opacity 0.5s ease-in-out;
+}

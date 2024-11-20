@@ -6,6 +6,10 @@ let markers = [];
 let currentTrip = null;
 let editMode = false;
 
+// Track if map is currently animating and any pending view changes
+let isMapAnimating = false;
+let pendingViewTimeout = null;
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Initializing application...');
@@ -32,11 +36,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupDragAndDrop();
     
     // Add back button handler for location view
-    document.getElementById('backToTrip').addEventListener('click', () => {
-        if (currentTrip) {
-            showTripDetails(currentTrip);
-        }
-    });
+    const backButton = document.getElementById('backToTrip');
+    if (backButton) {
+        backButton.addEventListener('click', handleBackToTrip);
+    }
 });
 
 function setupEventListeners() {
@@ -224,13 +227,9 @@ function updateMap() {
             const group = new L.featureGroup(markers);
             const bounds = group.getBounds();
             
-            // Calculate padding based on the trips panel width
-            const tripsPanel = document.querySelector('.trips-panel');
-            const panelWidth = tripsPanel ? tripsPanel.offsetWidth + 48 : 448; // Add 48px for the margin
-            
             // Add padding to the left for the panel and some padding all around
             map.fitBounds(bounds, {
-                paddingTopLeft: [panelWidth, 24],
+                paddingTopLeft: [400, 24],
                 paddingBottomRight: [24, 24],
                 maxZoom: 12, // Limit maximum zoom for better visibility
                 animate: true,
@@ -693,8 +692,83 @@ async function updateTrip() {
     }
 }
 
+function handleBackToTrip() {
+    const bounds = L.latLngBounds(currentTrip.locations.map(loc => [loc.latitude, loc.longitude]));
+    
+    // Clear existing markers and path
+    clearMap();
+    
+    // First zoom out to show all trip locations
+    isMapAnimating = true;
+    map.flyToBounds(bounds, { 
+        paddingTopLeft: [400, 0],
+        paddingBottomRight: [24, 24],
+        maxZoom: 12,
+        duration: 2.0,
+        easeLinearity: 0.1
+    });
+    
+    // Then show trip details without recreating the path
+    pendingViewTimeout = setTimeout(() => {
+        pendingViewTimeout = null;
+        isMapAnimating = false;
+        
+        // Show trip view mode and hide others
+        document.getElementById('tripListMode').style.display = 'none';
+        document.getElementById('tripViewMode').style.display = 'block';
+        document.getElementById('locationViewMode').style.display = 'none';
+        document.getElementById('tripEditMode').style.display = 'none';
+        document.getElementById('newTripForm').style.display = 'none';
+        
+        // Add markers for all locations
+        currentTrip.locations.forEach(loc => {
+            const marker = createPulsingMarker([loc.latitude, loc.longitude]);
+            marker.addTo(map);
+            markers.push(marker);
+        });
+
+        // Create path after zoom completes
+        if (currentTrip.locations.length > 1) {
+            const pathCoordinates = currentTrip.locations.map(loc => [loc.latitude, loc.longitude]);
+            path = animatePathWithPulses(pathCoordinates);
+            if (path) path.addTo(map);
+        }
+        
+        // Update trip details UI
+        document.getElementById('viewTripTitle').textContent = currentTrip.title;
+        document.getElementById('viewTripDescription').textContent = currentTrip.description || '';
+        document.getElementById('tripViewDates').textContent = formatDateRange(currentTrip.start_date, currentTrip.end_date);
+        
+        // Update locations list
+        const locationsList = document.getElementById('viewLocations');
+        if (locationsList) {
+            locationsList.innerHTML = currentTrip.locations.map((location, index) => `
+                <li class="location-item" data-location-index="${index}">
+                    <span class="location-name">${location.name}</span>
+                    <i class="fas fa-chevron-right"></i>
+                </li>
+            `).join('');
+            
+            // Add click handlers for locations
+            locationsList.querySelectorAll('.location-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const index = parseInt(item.dataset.locationIndex);
+                    const location = currentTrip.locations[index];
+                    showLocationDetails(location, currentTrip.title, index, currentTrip.locations.length);
+                });
+            });
+        }
+    }, 1000);
+}
+
 function showLocationDetails(location, tripTitle, locationIndex, totalLocations) {
     console.log('Showing location details, display_name:', location.display_name);
+    
+    // Clear any pending view changes
+    if (pendingViewTimeout) {
+        clearTimeout(pendingViewTimeout);
+        pendingViewTimeout = null;
+    }
     
     // Clear any existing path when showing location details
     if (path) {
@@ -726,42 +800,74 @@ function showLocationDetails(location, tripTitle, locationIndex, totalLocations)
     // Update header title
     locationView.querySelector('h3').textContent = location.name;
     
-    // Add back button handler
-    document.getElementById('backToTrip').addEventListener('click', () => {
-        const bounds = L.latLngBounds(currentTrip.locations.map(loc => [loc.latitude, loc.longitude]));
+    // Remove old event listener if it exists and add new one
+    const backButton = document.getElementById('backToTrip');
+    backButton.removeEventListener('click', handleBackToTrip);
+    backButton.addEventListener('click', handleBackToTrip);
+    
+    // Zoom map to location with smooth animation
+    map.flyTo([location.latitude, location.longitude], 17, {
+        duration: 2.0,
+        easeLinearity: 0.25,
+        paddingTopLeft: [400, 0]
+    });
+    
+    // Clear any existing markers and paths
+    clearMap();
+    
+    // Add marker for this location
+    const marker = createPulsingMarker([location.latitude, location.longitude]);
+    marker.addTo(map);
+    markers.push(marker);
+}
+
+function showTripDetails(trip, isFromEditMode = false) {
+    console.log('Showing trip details:', trip);
+    currentTrip = trip;
+    
+    if (trip.locations.length > 0) {
+        const bounds = L.latLngBounds(trip.locations.map(loc => [loc.latitude, loc.longitude]));
         
         // Clear existing markers and path
         clearMap();
         
-        // First zoom out to show all trip locations
-        map.flyToBounds(bounds, { 
-            paddingTopLeft: [400, 0],
-            paddingBottomRight: [24, 24],
-            maxZoom: 12,
-            duration: 2.0,
-            easeLinearity: 0.1
+        // Add markers immediately
+        trip.locations.forEach(loc => {
+            const marker = createPulsingMarker([loc.latitude, loc.longitude]);
+            marker.addTo(map);
+            markers.push(marker);
         });
-        
-        // Then show trip details without recreating the path
-        setTimeout(() => {
-            // Show trip view mode and hide others
-            document.getElementById('tripListMode').style.display = 'none';
-            document.getElementById('tripViewMode').style.display = 'block';
-            document.getElementById('locationViewMode').style.display = 'none';
-            document.getElementById('tripEditMode').style.display = 'none';
-            document.getElementById('newTripForm').style.display = 'none';
-            
-            // Add markers for all locations
-            currentTrip.locations.forEach(loc => {
-                const marker = createPulsingMarker([loc.latitude, loc.longitude]);
-                marker.addTo(map);
-                markers.push(marker);
+
+        // Skip animation if coming from edit mode
+        if (!isFromEditMode) {
+            // Start the zoom animation
+            isMapAnimating = true;
+            map.flyToBounds(bounds, {
+                duration: 2.0,
+                easeLinearity: 0.25,
+                paddingTopLeft: [400, 24],
+                paddingBottomRight: [24, 24],
+                maxZoom: 12
             });
             
-            // Create path after zoom completes
-            if (currentTrip.locations.length > 1) {
-                const pathCoordinates = currentTrip.locations.map(loc => [loc.latitude, loc.longitude]);
-                
+            // Reset animation flag when complete
+            map.once('moveend', () => {
+                isMapAnimating = false;
+            });
+        }
+
+        // Add path after zoom animation completes
+        if (trip.locations.length > 1) {
+            const pathCoordinates = trip.locations.map(loc => [loc.latitude, loc.longitude]);
+            
+            if (isFromEditMode) {
+                // Create path immediately if coming from edit mode
+                if (document.getElementById('locationViewMode').style.display !== 'block' && 
+                    document.getElementById('tripListMode').style.display !== 'block') {
+                    path = animatePathWithPulses(pathCoordinates);
+                    if (path) path.addTo(map);
+                }
+            } else {
                 // Create invisible base path
                 const basePath = L.polyline(pathCoordinates, {
                     color: 'var(--accent-color)',
@@ -783,100 +889,6 @@ function showLocationDetails(location, tripTitle, locationIndex, totalLocations)
                     }
                 });
             }
-            
-            // Update trip details UI
-            document.getElementById('viewTripTitle').textContent = currentTrip.title;
-            document.getElementById('viewTripDescription').textContent = currentTrip.description || '';
-            document.getElementById('tripViewDates').textContent = formatDateRange(currentTrip.start_date, currentTrip.end_date);
-            
-            // Update locations list
-            const locationsList = document.getElementById('viewLocations');
-            if (locationsList) {
-                locationsList.innerHTML = currentTrip.locations.map((location, index) => `
-                    <li class="location-item" data-location-index="${index}">
-                        <span class="location-name">${location.name}</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </li>
-                `).join('');
-                
-                // Add click handlers for locations
-                locationsList.querySelectorAll('.location-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const index = parseInt(item.dataset.locationIndex);
-                        const location = currentTrip.locations[index];
-                        showLocationDetails(location, currentTrip.title, index, currentTrip.locations.length);
-                    });
-                });
-            }
-        }, 100);
-    });
-    
-    // Zoom map to location with smooth animation
-    map.flyTo([location.latitude, location.longitude], 17, {
-        duration: 2.0,
-        easeLinearity: 0.25,
-        paddingTopLeft: [400, 0]
-    });
-    
-    // Clear any existing markers and paths
-    clearMap();
-    
-    // Add marker for this location
-    const marker = createPulsingMarker([location.latitude, location.longitude]);
-    marker.addTo(map);
-    markers.push(marker);
-}
-
-function showTripDetails(trip) {
-    console.log('Showing trip details:', trip);
-    currentTrip = trip;
-    
-    if (trip.locations.length > 0) {
-        const bounds = L.latLngBounds(trip.locations.map(loc => [loc.latitude, loc.longitude]));
-        
-        // Clear existing markers and path
-        clearMap();
-        
-        // Add markers immediately
-        trip.locations.forEach(loc => {
-            const marker = createPulsingMarker([loc.latitude, loc.longitude]);
-            marker.addTo(map);
-            markers.push(marker);
-        });
-        
-        // Start the zoom animation
-        map.flyToBounds(bounds, {
-            duration: 2.0,
-            easeLinearity: 0.25,
-            paddingTopLeft: [400, 0],
-            paddingBottomRight: [48, 24],
-            maxZoom: 12
-        });
-
-        // Add path after zoom animation completes
-        if (trip.locations.length > 1) {
-            const pathCoordinates = trip.locations.map(loc => [loc.latitude, loc.longitude]);
-            
-            // Create invisible base path
-            const basePath = L.polyline(pathCoordinates, {
-                color: 'var(--accent-color)',
-                weight: 2,
-                opacity: 0,
-                lineCap: 'round',
-                lineJoin: 'round'
-            }).addTo(map);
-            
-            // Wait for zoom to complete before showing animated path
-            map.once('moveend', () => {
-                // Only create path if we're not in location view
-                if (document.getElementById('locationViewMode').style.display !== 'block' && 
-                    document.getElementById('tripListMode').style.display !== 'block') {
-                    if (basePath) basePath.remove();
-                    if (path) path.remove();
-                    path = animatePathWithPulses(pathCoordinates);
-                    if (path) path.addTo(map);
-                }
-            });
         }
     }
     
@@ -915,7 +927,17 @@ function showTripDetails(trip) {
 
 function startEditTrip() {
     if (!currentTrip) return;
-    
+
+    // Cancel any ongoing animations and pending view changes
+    if (isMapAnimating) {
+        map.stop();
+        isMapAnimating = false;
+    }
+    if (pendingViewTimeout) {
+        clearTimeout(pendingViewTimeout);
+        pendingViewTimeout = null;
+    }
+
     editMode = true;
     selectedLocations = currentTrip.locations.map(loc => ({
         name: loc.name,
@@ -946,6 +968,7 @@ function startEditTrip() {
         'tripViewMode': 'none',
         'tripListMode': 'none',
         'tripEditMode': 'block',
+        'locationViewMode': 'none',
         'newTripForm': 'none'
     };
     
@@ -965,9 +988,12 @@ function startEditTrip() {
 
 function cancelEdit() {
     editMode = false;
+    selectedLocations = [...currentTrip.locations];  // Reset to original trip locations
     
     if (currentTrip) {
-        showTripDetails(currentTrip);
+        // Set isFromEditMode flag before showing trip details
+        const wasInEditMode = true;  // We know we're coming from edit mode
+        showTripDetails(currentTrip, wasInEditMode);
     } else {
         showTripsList();
     }
@@ -1321,8 +1347,8 @@ function animatePathWithPulses(pathCoordinates) {
     return pathGroup;
 }
 
-async function deleteTrip(tripId) {
-    if (!tripId) {
+async function deleteTrip() {
+    if (!currentTrip || !currentTrip.id) {
         console.error('No trip ID provided for deletion');
         return;
     }
@@ -1332,7 +1358,7 @@ async function deleteTrip(tripId) {
     }
 
     try {
-        const response = await fetch(`/api/trips/${tripId}`, {
+        const response = await fetch(`/api/trips/${currentTrip.id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -1343,9 +1369,10 @@ async function deleteTrip(tripId) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Refresh the trips list
-        await loadTrips();
+        // Clear the current trip and show the trips list
+        currentTrip = null;
         showTripsList();
+        
     } catch (error) {
         console.error('Error deleting trip:', error);
         alert('Failed to delete trip. Please try again.');

@@ -762,14 +762,8 @@ function showLocationDetails(location, tripTitle, locationIndex, totalLocations)
     locationView.style.display = 'block';
     
     // Update location view content
-    const viewContent = locationView.querySelector('.view-content');
-    viewContent.innerHTML = `
-        <p class="text-muted">Stop ${locationIndex + 1} of ${totalLocations}</p>
-        <div class="location-details">
-            <h5>Address</h5>
-            <p>${location.display_name}</p>
-        </div>
-    `;
+    document.getElementById('locationStop').textContent = `Stop ${locationIndex + 1} of ${totalLocations}`;
+    document.getElementById('locationAddress').textContent = location.display_name;
     
     // Update header title
     locationView.querySelector('h3').textContent = location.name;
@@ -799,7 +793,6 @@ function showLocationDetails(location, tripTitle, locationIndex, totalLocations)
     // Add marker for this location
     const marker = createPulsingMarker([location.latitude, location.longitude]);
     marker.addTo(map);
-    markers.push(marker);
 }
 
 function showTripDetails(trip, isFromEditMode = false) {

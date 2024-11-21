@@ -44,11 +44,18 @@
                 </button>
                 <h3>Location Details</h3>
             </div>
-            <div class="view-content"></div>
-            <div class="view-actions">
-                <button onclick="showPreviousLocation()" class="btn btn-outline-secondary"><i class="fas fa-chevron-left"></i> Previous</button>
-                <button onclick="showNextLocation()" class="btn btn-outline-secondary">Next <i class="fas fa-chevron-right"></i></button>
-            </div>
+            <div class="view-content">
+                <p id="locationStop" class="text-muted"></p>
+                <div class="location-details">
+                    <h5>Address</h5>
+                    <p id="locationAddress"></p>
+                </div>
+                <hr class="form-divider">
+                <div class="view-actions">
+                    <button onclick="showPreviousLocation()" class="btn btn-primary"><i class="fas fa-chevron-left"></i> Previous</button>
+                    <button onclick="showNextLocation()" class="btn btn-primary">Next <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>    
         </div>
 
         <!-- Trip Edit Mode -->

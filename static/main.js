@@ -105,9 +105,9 @@ function initializeMap() {
     }).addTo(map);
 }
 
-function createPulsingMarker(latlng, color = '#FF1E80') {
+function createPulsingMarker(latlng, isHighlighted = false) {
     const pulsingIcon = L.divIcon({
-        className: 'custom-marker',
+        className: `custom-marker ${isHighlighted ? 'highlighted' : ''}`,
         html: `
             <div class="marker-pin">
                 <div class="pin-head"></div>
@@ -120,20 +120,35 @@ function createPulsingMarker(latlng, color = '#FF1E80') {
     return L.marker(latlng, { icon: pulsingIcon });
 }
 
-function createPulsingDot(latlng) {
-    return L.divIcon({
-        className: 'pulsing-dot',
-        html: '<div class="pulse-dot"></div>',
-        iconSize: [10, 10],
-        iconAnchor: [5, 5]
+function highlightMarker(marker) {
+    const icon = marker.getIcon();
+    const newIcon = L.divIcon({
+        ...icon.options,
+        className: 'custom-marker highlighted'
     });
+    marker.setIcon(newIcon);
+}
+
+function unhighlightMarker(marker) {
+    const icon = marker.getIcon();
+    const newIcon = L.divIcon({
+        ...icon.options,
+        className: 'custom-marker'
+    });
+    marker.setIcon(newIcon);
 }
 
 function clearMap() {
     // Clear existing markers
     markers.forEach(marker => {
         if (marker) {
-            marker.remove();
+            if (marker.remove) {
+                marker.remove();  // Regular marker
+            } else if (marker.original && marker.highlighted) {
+                // Handle highlighted markers
+                marker.original.remove();
+                marker.highlighted.remove();
+            }
         }
     });
     markers = [];
@@ -735,7 +750,7 @@ function handlePathVisibility() {
     }
 }
 
-function showLocationDetails(location, tripTitle, locationIndex, totalLocations) {
+function showLocationDetails(location, tripTitle, locationIndex, totalLocations, trip) {
     if (isMapAnimating) {
         // Stop any current animation
         map.stop();
@@ -743,6 +758,17 @@ function showLocationDetails(location, tripTitle, locationIndex, totalLocations)
     
     currentLocationIndex = locationIndex;
     isMapAnimating = true;
+    
+    // Store trip information for when we go back
+    if (trip) {
+        currentTrip = trip;
+    }
+    
+    // Only clear the path, keep markers
+    if (path) {
+        path.remove();
+        path = null;
+    }
     
     // Update location details in the view
     document.querySelector('#locationViewMode h3').textContent = location.name;
@@ -768,9 +794,15 @@ function showLocationDetails(location, tripTitle, locationIndex, totalLocations)
             isMapAnimating = false;
             fadeInLayers();
             
-            // Add marker for this location
-            const marker = createPulsingMarker([location.latitude, location.longitude]);
-            marker.addTo(map);
+            // Highlight the current location's marker
+            markers.forEach(marker => {
+                const markerLatLng = marker.getLatLng();
+                if (markerLatLng.lat === location.latitude && markerLatLng.lng === location.longitude) {
+                    highlightMarker(marker);
+                } else {
+                    unhighlightMarker(marker);
+                }
+            });
         });
     }
 }
@@ -780,7 +812,7 @@ function showNextLocation() {
     
     currentLocationIndex = (currentLocationIndex + 1) % currentTrip.locations.length;
     const nextLocation = currentTrip.locations[currentLocationIndex];
-    showLocationDetails(nextLocation, currentTrip.title, currentLocationIndex, currentTrip.locations.length);
+    showLocationDetails(nextLocation, currentTrip.title, currentLocationIndex, currentTrip.locations.length, currentTrip);
 }
 
 function showPreviousLocation() {
@@ -788,7 +820,7 @@ function showPreviousLocation() {
     
     currentLocationIndex = (currentLocationIndex - 1 + currentTrip.locations.length) % currentTrip.locations.length;
     const prevLocation = currentTrip.locations[currentLocationIndex];
-    showLocationDetails(prevLocation, currentTrip.title, currentLocationIndex, currentTrip.locations.length);
+    showLocationDetails(prevLocation, currentTrip.title, currentLocationIndex, currentTrip.locations.length, currentTrip);
 }
 
 function showTripDetails(trip, isFromEditMode = false) {
@@ -885,7 +917,7 @@ function showTripDetails(trip, isFromEditMode = false) {
             
             // Click handler
             item.addEventListener('click', () => {
-                showLocationDetails(location, trip.title, index, trip.locations.length);
+                showLocationDetails(location, trip.title, index, trip.locations.length, trip);
             });
 
             // Hover handlers
@@ -993,10 +1025,7 @@ function showTripsList() {
     
     // Clear the map completely
     clearMap();
-    
-    // Reset any global state
-    currentTrip = null;
-    selectedLocations = [];
+    markers = []; // Reset markers array
     
     // Hide all modes except trip list
     document.getElementById('tripViewMode').style.display = 'none';
@@ -1017,7 +1046,10 @@ function showTripsList() {
     map.once('moveend', () => {
         // Fade in labels layers
         fadeInLayers();
-        handlePathVisibility();
+        
+        // Reset any global state
+        currentTrip = null;
+        selectedLocations = [];
     });
 
     // Load trips
@@ -1389,7 +1421,7 @@ function showNextLocation() {
     if (currentTrip && currentTrip.locations.length > 0) {
         currentLocationIndex = (currentLocationIndex + 1) % currentTrip.locations.length;
         const nextLocation = currentTrip.locations[currentLocationIndex];
-        showLocationDetails(nextLocation, currentTrip.title, currentLocationIndex, currentTrip.locations.length);
+        showLocationDetails(nextLocation, currentTrip.title, currentLocationIndex, currentTrip.locations.length, currentTrip);
     }
 }
 
@@ -1397,7 +1429,7 @@ function showPreviousLocation() {
     if (currentTrip && currentTrip.locations.length > 0) {
         currentLocationIndex = (currentLocationIndex - 1 + currentTrip.locations.length) % currentTrip.locations.length;
         const prevLocation = currentTrip.locations[currentLocationIndex];
-        showLocationDetails(prevLocation, currentTrip.title, currentLocationIndex, currentTrip.locations.length);
+        showLocationDetails(prevLocation, currentTrip.title, currentLocationIndex, currentTrip.locations.length, currentTrip);
     }
 }
 
@@ -1521,6 +1553,11 @@ function maintainLabelVisibility() {
 }
 
 function handleBackToTrip() {
+    if (!currentTrip) {
+        console.error('No trip data available');
+        return;
+    }
+
     // Show trip view mode and hide others immediately
     document.getElementById('tripListMode').style.display = 'none';
     document.getElementById('tripViewMode').style.display = 'block';
@@ -1530,17 +1567,23 @@ function handleBackToTrip() {
 
     const bounds = L.latLngBounds(currentTrip.locations.map(loc => [loc.latitude, loc.longitude]));
     
-    // Clear existing path but keep markers
-    if (path) {
-        path.remove();
-        path = null;
-    }
-    
-    // Add markers for all locations immediately
+    // Ensure all locations have markers
     currentTrip.locations.forEach(loc => {
-        const marker = createPulsingMarker([loc.latitude, loc.longitude]);
-        marker.addTo(map);
-        markers.push(marker);
+        const hasMarker = markers.some(marker => {
+            const markerLatLng = marker.getLatLng();
+            return markerLatLng.lat === loc.latitude && markerLatLng.lng === loc.longitude;
+        });
+        
+        if (!hasMarker) {
+            const marker = createPulsingMarker([loc.latitude, loc.longitude]);
+            marker.addTo(map);
+            markers.push(marker);
+        }
+    });
+    
+    // Reset all markers to default style
+    markers.forEach(marker => {
+        unhighlightMarker(marker);
     });
     
     // Fade out labels layers during animation
@@ -1551,19 +1594,14 @@ function handleBackToTrip() {
     map.flyToBounds(bounds, { 
         paddingTopLeft: [400, 24],
         paddingBottomRight: [24, 24],
-        maxZoom: 12, // Limit maximum zoom for better visibility
+        maxZoom: 12,
         duration: 2.0,
         easeLinearity: 0.1
     });
     
-    // Wait for zoom to complete before showing trip details
     map.once('moveend', () => {
         isMapAnimating = false;
-        
-        // Fade in labels layers
         fadeInLayers();
-
-        // Handle path visibility
         handlePathVisibility();
 
         // Update trip details UI
@@ -1571,7 +1609,7 @@ function handleBackToTrip() {
         document.getElementById('viewTripDescription').textContent = currentTrip.description || '';
         document.getElementById('tripViewDates').textContent = formatDateRange(currentTrip.start_date, currentTrip.end_date);
         
-        // Update locations list with address previews
+        // Update locations list
         const locationsList = document.getElementById('viewLocations');
         if (locationsList) {
             locationsList.innerHTML = currentTrip.locations.map((location, index) => `
@@ -1591,7 +1629,7 @@ function handleBackToTrip() {
                 item.addEventListener('click', () => {
                     const index = parseInt(item.dataset.locationIndex);
                     const location = currentTrip.locations[index];
-                    showLocationDetails(location, currentTrip.title, index, currentTrip.locations.length);
+                    showLocationDetails(location, currentTrip.title, index, currentTrip.locations.length, currentTrip);
                 });
             });
         }
@@ -1600,14 +1638,12 @@ function handleBackToTrip() {
 
 function highlightLocationOnMap(lat, lng, index) {
     if (markers[index]) {
-        // Store the original marker
+        // Store and remove the original marker
         const originalMarker = markers[index];
-        
-        // Remove the original marker
-        map.removeLayer(originalMarker);
+        originalMarker.remove();  // This properly removes from Leaflet's layer management
         
         // Create a highlighted marker
-        const highlightedMarker = createPulsingMarker([lat, lng], '#4CAF50');
+        const highlightedMarker = createPulsingMarker([lat, lng], true);
         highlightedMarker.addTo(map);
         
         // Store both markers in the array
@@ -1619,14 +1655,16 @@ function highlightLocationOnMap(lat, lng, index) {
 }
 
 function resetLocationHighlight(index) {
-    if (markers[index] && markers[index].original) {
-        // Remove the highlighted marker
-        map.removeLayer(markers[index].highlighted);
-        
-        // Restore the original marker
-        markers[index].original.addTo(map);
-        
-        // Reset the markers array
-        markers[index] = markers[index].original;
+    if (markers[index]) {
+        if (markers[index].original && markers[index].highlighted) {
+            // Remove highlighted marker
+            markers[index].highlighted.remove();
+            
+            // Add back the original marker
+            markers[index].original.addTo(map);
+            
+            // Reset the markers array to just contain the original marker
+            markers[index] = markers[index].original;
+        }
     }
 }

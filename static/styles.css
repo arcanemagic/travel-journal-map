@@ -208,26 +208,57 @@ input[type="text"]#editTripTitle {
 }
 
 .location-item {
-    padding: 1rem;
+    display: block;
+    padding: 12px 16px;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.5);
-    margin-bottom: 0.75rem;
+    margin-bottom: 8px;
+    background: var(--background);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .location-item:hover {
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(139, 75, 168, 0.05);
+    border-color: var(--accent-color);
+    transform: translateX(4px);
 }
 
-.location-item h4 {
-    font-size: 16px;
+.location-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.location-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.location-name {
     font-weight: 500;
-    margin-bottom: 4px;
+    color: var(--text-color);
 }
 
-.location-item p {
-    font-size: 14px;
+.location-address {
+    font-size: 0.875rem;
     color: var(--text-secondary);
-    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+}
+
+.location-item .fa-chevron-right {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    transition: transform 0.2s ease;
+}
+
+.location-item:hover .fa-chevron-right {
+    transform: translateX(4px);
+    color: var(--accent-color);
 }
 
 .leaflet-container {
@@ -276,23 +307,6 @@ input[type="text"]#editTripTitle {
 
 #tripsList {
     padding: 1.5rem;
-}
-
-.trip-item {
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid rgba(139, 75, 168, 0.1);
-}
-
-.trip-item:hover {
-    background: rgba(255, 255, 255, 0.9);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(139, 75, 168, 0.1);
-    border-color: rgba(139, 75, 168, 0.2);
 }
 
 /* Trip View Mode Styles */
@@ -579,58 +593,6 @@ path.leaflet-interactive {
 
 .location-list:empty + .form-divider {
     margin-top: 0;
-}
-
-.location-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-    transition: all 0.2s ease;
-}
-
-.location-item:hover {
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.location-item .drag-handle {
-    color: #666;
-    cursor: grab;
-    padding: 0.25rem;
-}
-
-.location-item .drag-handle:active {
-    cursor: grabbing;
-}
-
-.location-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.location-name {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-}
-
-.location-address {
-    display: block;
-    color: #666;
-    font-size: 0.85rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.sortable-ghost {
-    opacity: 0.5;
-    background: var(--accent-color);
 }
 
 /* Search Results */
@@ -977,7 +939,6 @@ path.leaflet-interactive {
 
 .location-name {
     flex-grow: 1;
-    margin-right: 0.5rem;
 }
 
 /* Form Actions */

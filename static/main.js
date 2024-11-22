@@ -736,63 +736,59 @@ function handlePathVisibility() {
 }
 
 function showLocationDetails(location, tripTitle, locationIndex, totalLocations) {
-    console.log('Showing location details, display_name:', location.display_name);
-    
-    // Clear any pending view changes
-    if (pendingViewTimeout) {
-        clearTimeout(pendingViewTimeout);
-        pendingViewTimeout = null;
+    if (isMapAnimating) {
+        // Stop any current animation
+        map.stop();
     }
     
-    // Clear any existing path when showing location details
-    if (path) {
-        path.remove();
-        path = null;
-    }
-
-    // Hide other views
-    document.getElementById('tripListMode').style.display = 'none';
-    document.getElementById('tripsList').style.display = 'none';
-    document.getElementById('newTripForm').style.display = 'none';
+    currentLocationIndex = locationIndex;
+    isMapAnimating = true;
+    
+    // Update location details in the view
+    document.querySelector('#locationViewMode h3').textContent = location.name;
+    document.getElementById('locationStop').textContent = `Location ${locationIndex + 1} of ${totalLocations}`;
+    document.getElementById('locationAddress').textContent = location.display_name || '';
+    
+    // Show location view mode
+    document.getElementById('locationViewMode').style.display = 'block';
     document.getElementById('tripViewMode').style.display = 'none';
     document.getElementById('tripEditMode').style.display = 'none';
-    
-    // Show location view
-    const locationView = document.getElementById('locationViewMode');
-    locationView.style.display = 'block';
-    
-    // Update location view content
-    document.getElementById('locationStop').textContent = `Stop ${locationIndex + 1} of ${totalLocations}`;
-    document.getElementById('locationAddress').textContent = location.display_name;
-    
-    // Update header title
-    locationView.querySelector('h3').textContent = location.name;
-    
-    // Remove old event listener if it exists and add new one
-    const backButton = document.getElementById('backToTrip');
-    backButton.removeEventListener('click', handleBackToTrip);
-    backButton.addEventListener('click', handleBackToTrip);
-    
-    // Zoom map to location with smooth animation
-    fadeOutLayers();
-    map.flyTo([location.latitude, location.longitude], 17, {
-        duration: 2.0,
-        easeLinearity: 0.25,
-        paddingTopLeft: [400, 0]
-    });
+    document.getElementById('tripListMode').style.display = 'none';
+    document.getElementById('newTripForm').style.display = 'none';
 
-    map.once('moveend', () => {
-        // Fade in labels layers
-        fadeInLayers();
-        handlePathVisibility();
-    });
+    // Update map view with animation
+    if (location.latitude && location.longitude) {
+        fadeOutLayers();
+        map.flyTo([location.latitude, location.longitude], 14, {
+            duration: 2.0,
+            easeLinearity: 0.25
+        });
 
-    // Clear any existing markers and paths
-    clearMap();
+        map.once('moveend', () => {
+            isMapAnimating = false;
+            fadeInLayers();
+            
+            // Add marker for this location
+            const marker = createPulsingMarker([location.latitude, location.longitude]);
+            marker.addTo(map);
+        });
+    }
+}
+
+function showNextLocation() {
+    if (isMapAnimating || !currentTrip || !currentTrip.locations.length) return;
     
-    // Add marker for this location
-    const marker = createPulsingMarker([location.latitude, location.longitude]);
-    marker.addTo(map);
+    currentLocationIndex = (currentLocationIndex + 1) % currentTrip.locations.length;
+    const nextLocation = currentTrip.locations[currentLocationIndex];
+    showLocationDetails(nextLocation, currentTrip.title, currentLocationIndex, currentTrip.locations.length);
+}
+
+function showPreviousLocation() {
+    if (isMapAnimating || !currentTrip || !currentTrip.locations.length) return;
+    
+    currentLocationIndex = (currentLocationIndex - 1 + currentTrip.locations.length) % currentTrip.locations.length;
+    const prevLocation = currentTrip.locations[currentLocationIndex];
+    showLocationDetails(prevLocation, currentTrip.title, currentLocationIndex, currentTrip.locations.length);
 }
 
 function showTripDetails(trip, isFromEditMode = false) {
@@ -868,18 +864,39 @@ function showTripDetails(trip, isFromEditMode = false) {
     const locationsList = document.getElementById('viewLocations');
     if (locationsList) {
         locationsList.innerHTML = trip.locations.map((location, index) => `
-            <li class="location-item" data-location-index="${index}">
-                <span class="location-name">${location.name || 'Unnamed Location'}</span>
-                <i class="fas fa-chevron-right"></i>
+            <li class="location-item" 
+                data-location-index="${index}"
+                data-lat="${location.latitude}"
+                data-lng="${location.longitude}">
+                <div class="location-content">
+                    <div class="location-main">
+                        <span class="location-name">${location.name || 'Unnamed Location'}</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                    <div class="location-address">${location.display_name || ''}</div>
+                </div>
             </li>
         `).join('');
         
         // Add click handlers for locations
         locationsList.querySelectorAll('.location-item').forEach(item => {
+            const index = parseInt(item.dataset.locationIndex);
+            const location = trip.locations[index];
+            
+            // Click handler
             item.addEventListener('click', () => {
-                const index = parseInt(item.dataset.locationIndex);
-                const location = trip.locations[index];
                 showLocationDetails(location, trip.title, index, trip.locations.length);
+            });
+
+            // Hover handlers
+            item.addEventListener('mouseenter', () => {
+                const lat = parseFloat(item.dataset.lat);
+                const lng = parseFloat(item.dataset.lng);
+                highlightLocationOnMap(lat, lng, index);
+            });
+
+            item.addEventListener('mouseleave', () => {
+                resetLocationHighlight(index);
             });
         });
     }
@@ -1529,8 +1546,8 @@ function handleBackToTrip() {
     // Fade out labels layers during animation
     fadeOutLayers();
     
-    // First zoom out to show all trip locations
     isMapAnimating = true;
+    // First zoom out to show all trip locations
     map.flyToBounds(bounds, { 
         paddingTopLeft: [400, 24],
         paddingBottomRight: [24, 24],
@@ -1554,13 +1571,18 @@ function handleBackToTrip() {
         document.getElementById('viewTripDescription').textContent = currentTrip.description || '';
         document.getElementById('tripViewDates').textContent = formatDateRange(currentTrip.start_date, currentTrip.end_date);
         
-        // Update locations list
+        // Update locations list with address previews
         const locationsList = document.getElementById('viewLocations');
         if (locationsList) {
             locationsList.innerHTML = currentTrip.locations.map((location, index) => `
                 <li class="location-item" data-location-index="${index}">
-                    <span class="location-name">${location.name}</span>
-                    <i class="fas fa-chevron-right"></i>
+                    <div class="location-content">
+                        <div class="location-main">
+                            <span class="location-name">${location.name}</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="location-address">${location.display_name || ''}</div>
+                    </div>
                 </li>
             `).join('');
             
@@ -1574,4 +1596,37 @@ function handleBackToTrip() {
             });
         }
     });
+}
+
+function highlightLocationOnMap(lat, lng, index) {
+    if (markers[index]) {
+        // Store the original marker
+        const originalMarker = markers[index];
+        
+        // Remove the original marker
+        map.removeLayer(originalMarker);
+        
+        // Create a highlighted marker
+        const highlightedMarker = createPulsingMarker([lat, lng], '#4CAF50');
+        highlightedMarker.addTo(map);
+        
+        // Store both markers in the array
+        markers[index] = {
+            original: originalMarker,
+            highlighted: highlightedMarker
+        };
+    }
+}
+
+function resetLocationHighlight(index) {
+    if (markers[index] && markers[index].original) {
+        // Remove the highlighted marker
+        map.removeLayer(markers[index].highlighted);
+        
+        // Restore the original marker
+        markers[index].original.addTo(map);
+        
+        // Reset the markers array
+        markers[index] = markers[index].original;
+    }
 }

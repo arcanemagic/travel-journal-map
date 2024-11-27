@@ -1,3 +1,7 @@
+/* ==========================================================================
+   CSS Variables and Base Styles
+   ========================================================================== */
+
 :root {
     --accent-color: #8B4BA8;
     --text-color: #333;
@@ -8,6 +12,7 @@
     --panel-gradient: linear-gradient(to bottom right, rgba(255, 255, 255, 0.95), rgba(243, 240, 248, 0.95));
 }
 
+/* Base Reset */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -21,6 +26,10 @@ body {
     overflow: hidden;
 }
 
+/* ==========================================================================
+   Map and Marker Styles
+   ========================================================================== */
+
 #map {
     position: fixed;
     top: 0;
@@ -30,412 +39,41 @@ body {
     z-index: 0;
 }
 
-.trips-panel {
-    position: fixed;
-    left: 24px;
-    top: 24px;
-    bottom: 24px;
-    height: fit-content;
-    max-height: calc(100vh - 48px);
-    width: 400px;
-    background: var(--panel-gradient);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(139, 75, 168, 0.15),
-                inset 0 0 0 1px rgba(139, 75, 168, 0.1);
-    z-index: 1000;
-    overflow-y: auto;
-}
-
-.panel-header, .trips-header, .view-header, .edit-header {
-    position: sticky;
-    top: 0;
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(139, 75, 168, 0.15);
-    background: inherit;
-    backdrop-filter: blur(10px);
-    z-index: 2;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.panel-header h1 {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0;
-}
-
-.add-trip-btn {
-    background: var(--accent-color);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.add-trip-btn:hover {
-    background: #6f3c86;
-}
-
-#tripsList, .trip-form, .trip-details, .view-content, .edit-content {
-    padding: 1.5rem;
-}
-
-.trip-item {
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid rgba(139, 75, 168, 0.15);
-}
-
-.trip-item:hover {
-    background: rgba(255, 255, 255, 0.8);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(139, 75, 168, 0.15);
-    border-color: rgba(139, 75, 168, 0.25);
-}
-
-.trip-form {
-    padding: 20px;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.75rem;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    text-transform: none;
-    letter-spacing: 0.02em;
-}
-
-.form-control {
-    width: 100%;
-    padding: 1rem;
-    border: 2px solid rgba(0, 0, 0, 0.08);
-    border-radius: 12px;
-    font-size: 1rem;
-    font-family: inherit;
-    transition: all 0.2s ease;
-    background-color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    color: var(--text-color);
-}
-
-.form-control::placeholder {
-    color: var(--text-secondary);
-    opacity: 0.6;
-}
-
-.form-control:hover {
-    border-color: rgba(0, 0, 0, 0.12);
-    background-color: rgba(255, 255, 255, 0.95);
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    background-color: #ffffff;
-    box-shadow: 0 0 0 4px rgba(139, 75, 168, 0.1);
-}
-
-textarea.form-control {
-    min-height: 120px;
-    line-height: 1.6;
-    resize: vertical;
-}
-
-input[type="text"]#tripTitle,
-input[type="text"]#editTripTitle {
-    font-size: 1.1rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-}
-
-#tripDescription,
-#editTripDescription {
-    font-size: 1rem;
-    line-height: 1.6;
-}
-
-.form-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.save-btn {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.save-btn:hover {
-    background-color: #45a049;
-}
-
-.trip-details {
-    padding: 20px;
-}
-
-.trip-details p {
-    margin-bottom: 12px;
-}
-
-.trip-details h3 {
-    margin: 24px 0 12px;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.locations-list {
-    margin-top: 16px;
-}
-
-.location-item {
-    display: block;
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    background: var(--background);
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.location-item:hover {
-    background: rgba(139, 75, 168, 0.05);
-    border-color: var(--accent-color);
-    transform: translateX(4px);
-}
-
-.location-content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.location-main {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.location-name {
-    font-weight: 500;
-    color: var(--text-color);
-}
-
-.location-address {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 300px;
-}
-
-.location-item .fa-chevron-right {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    transition: transform 0.2s ease;
-}
-
-.location-item:hover .fa-chevron-right {
-    transform: translateX(4px);
-    color: var(--accent-color);
-}
-
 .leaflet-container {
     background: #f8f9fa;
 }
 
-/* Panel Styles */
-.panel-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    background: inherit;
-}
-
-.panel-header h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
+/* Map Tooltips */
+.leaflet-tooltip {
+    background: var(--panel-gradient);
     color: var(--text-color);
-}
-
-.add-trip-btn {
-    background: var(--accent-color);
-    color: white;
     border: none;
-    padding: 0.5rem 1rem;
+    box-shadow: 0 2px 10px rgba(139, 75, 168, 0.2);
+    padding: 8px 12px;
     border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease;
-}
-
-.add-trip-btn:hover {
-    background-color: #6f3c86;
-}
-
-.add-trip-btn i {
-    font-size: 0.8rem;
-}
-
-#tripsList {
-    padding: 1.5rem;
-}
-
-/* Trip View Mode Styles */
-#tripViewMode .panel-header {
-    justify-content: flex-start;
-}
-
-.back-btn {
-    background: none;
-    border: none;
-    padding: 0.5rem;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: color 0.2s ease;
-}
-
-.back-btn:hover {
-    color: var(--accent-color);
-}
-
-.trip-details {
-    padding: 1.5rem;
-}
-
-/* Form Styles */
-#newTripForm form, #editTripForm {
-    padding: 1.5rem;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
+    font-size: 14px;
     font-weight: 500;
-    color: var(--text-color);
-    font-size: 0.95rem;
-    text-transform: none;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(139, 75, 168, 0.15);
 }
 
-.form-control {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    transition: border-color 0.2s ease;
-    background-color: #ffffff;
+.leaflet-tooltip-top:before {
+    border-top-color: rgba(139, 75, 168, 0.15);
 }
 
-.form-control:focus {
-    outline: none;
-    border-color: var(--accent-color);
+.leaflet-tooltip-bottom:before {
+    border-bottom-color: rgba(139, 75, 168, 0.15);
 }
 
-.form-divider {
-    border: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    margin: 1.5rem 0;
+.leaflet-tooltip-left:before {
+    border-left-color: rgba(139, 75, 168, 0.15);
 }
 
-/* Button Styles */
-.btn {
-    padding: 0.875rem 1.5rem;
-    border: none;
-    border-radius: 100px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-transform: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5em;
-    line-height: 1;
+.leaflet-tooltip-right:before {
+    border-right-color: rgba(139, 75, 168, 0.15);
 }
 
-.btn:hover {
-    transform: translateY(-1px);
-}
-
-.btn:active {
-    transform: translateY(0);
-}
-
-.btn i {
-    font-size: 0.875em;  /* Slightly smaller than the text */
-    vertical-align: middle;
-    position: relative;
-    top: -1px;  /* Fine-tune vertical alignment */
-    margin-left: 0.5em;  /* Consistent spacing */
-}
-
-.btn-primary {
-    background: var(--accent-color);
-    color: white;
-    border: none;
-}
-
-.btn-primary:hover {
-    background: #6f3c86;
-}
-
-.btn-outline-primary {
-    background: transparent;
-    color: var(--accent-color);
-    border: 2px solid var(--accent-color);
-}
-
-.btn-outline-primary:hover {
-    background: rgba(139, 75, 168, 0.1);
-}
-
-.btn-outline-secondary {
-    background: transparent;
-    color: var(--text-color);
-    border: 2px solid rgba(0, 0, 0, 0.2);
-}
-
-.btn-outline-secondary:hover {
-    background: rgba(0, 0, 0, 0.05);
-    border-color: rgba(0, 0, 0, 0.3);
-}
-
-/* Map Marker Styles */
+/* Custom Map Markers */
 .custom-marker {
     position: relative;
 }
@@ -468,88 +106,7 @@ input[type="text"]#editTripTitle {
     transform: translate(-50%, 0) rotate(-45deg) scale(1.1);
 }
 
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(255, 30, 128, 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(255, 30, 128, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(255, 30, 128, 0);
-    }
-}
-
-.highlighted .marker-pin {
-    animation: pulseHighlighted 2s infinite;
-}
-
-@keyframes pulseHighlighted {
-    0% {
-        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
-    }
-}
-
-/* Tooltip Styles */
-.leaflet-tooltip {
-    background: var(--panel-gradient);
-    color: var(--text-color);
-    border: none;
-    box-shadow: 0 2px 10px rgba(139, 75, 168, 0.2);
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(139, 75, 168, 0.15);
-}
-
-.leaflet-tooltip-top:before {
-    border-top-color: rgba(139, 75, 168, 0.15);
-}
-
-.leaflet-tooltip-bottom:before {
-    border-bottom-color: rgba(139, 75, 168, 0.15);
-}
-
-.leaflet-tooltip-left:before {
-    border-left-color: rgba(139, 75, 168, 0.15);
-}
-
-.leaflet-tooltip-right:before {
-    border-right-color: rgba(139, 75, 168, 0.15);
-}
-
-/* Path Styles */
-.leaflet-interactive {
-    transition: opacity 0.3s ease;
-}
-
-path.leaflet-interactive {
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    pointer-events: none;
-    filter: drop-shadow(0 0 2px rgba(139, 75, 168, 0.3));
-}
-
-.leaflet-pane path {
-    vector-effect: non-scaling-stroke;
-}
-
-[class^="flow-path-"] {
-    stroke-dasharray: 10, 30;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    transition: none;
-}
-
-/* Map Path Styles */
+/* Map Path Animations */
 .initial-path {
     stroke: var(--accent-color) !important;
     stroke-width: 3 !important;
@@ -575,35 +132,83 @@ path.leaflet-interactive {
     filter: drop-shadow(0 0 2px rgba(139, 75, 168, 0.3));
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+/* ==========================================================================
+   Panel Layout and Structure
+   ========================================================================== */
+
+.trips-panel {
+    position: fixed;
+    left: 24px;
+    top: 24px;
+    bottom: 24px;
+    height: fit-content;
+    max-height: calc(100vh - 48px);
+    width: 400px;
+    background: var(--panel-gradient);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(139, 75, 168, 0.15),
+                inset 0 0 0 1px rgba(139, 75, 168, 0.1);
+    z-index: 1000;
+    overflow-y: auto;
 }
 
-/* Back Button */
-.back-arrow {
-    background: none;
-    border: none;
-    color: var(--text-color);
-    font-size: 24px;
+/* Panel Content Areas */
+#tripsList, .trip-form, .trip-details, .view-content, .edit-content {
+    padding: 1.5rem;
+}
+
+/* Trip List View */
+.trip-item {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
     cursor: pointer;
-    padding: 5px 10px;
-    margin-right: 10px;
-    transition: transform 0.2s ease;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(139, 75, 168, 0.15);
 }
 
-.back-arrow:hover {
-    transform: translateX(-3px);
+.trip-item:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 75, 168, 0.15);
+    border-color: rgba(139, 75, 168, 0.25);
 }
 
-.back-arrow i {
-    text-transform: none;
-    display: block;
-    line-height: 1;
+.trip-item h3 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.trip-item p {
+    margin: 5px 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Trip View Mode */
+#tripViewMode .panel-header {
+    justify-content: flex-start;
+}
+
+.trip-details {
+    padding: 1.5rem;
+}
+
+.trip-description {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+.trip-date {
+    color: var(--accent-color);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
 }
 
 /* Location List */
@@ -613,17 +218,149 @@ path.leaflet-interactive {
     margin: 0;
 }
 
-.location-list:empty {
-    display: none;
+.location-item {
+    background: var(--background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.location-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.location-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.location-name {
+    font-weight: 500;
+    color: var(--text-color);
+    font-size: 1rem;
     margin: 0;
     padding: 0;
 }
 
-.location-list:empty + .form-divider {
-    margin-top: 0;
+.location-address {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* Search Results */
+.location-item .fa-chevron-right {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-left: 0.75rem;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.2s ease;
+}
+
+.location-item:hover .fa-chevron-right {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Edit Mode Location Items */
+.edit-locations .location-item {
+    cursor: move;
+    padding-left: 2rem;
+    position: relative;
+}
+
+.edit-locations .drag-handle {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    cursor: move;
+}
+
+/* Edit Mode */
+#tripEditMode form, #newTripForm form {
+    padding: 1.5rem;
+}
+
+.edit-actions, .view-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    justify-content: flex-start;
+}
+
+/* Location Item in Edit Mode */
+.location-item .drag-handle {
+    width: 16px;
+    height: 16px;
+    cursor: grab;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238B4BA8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='7' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3Ccircle cx='15' cy='7' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3Ccircle cx='9' cy='12' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3Ccircle cx='15' cy='12' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3Ccircle cx='9' cy='17' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3Ccircle cx='15' cy='17' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.location-item .drag-handle:hover {
+    opacity: 1;
+    background-color: rgba(139, 75, 168, 0.1);
+    border-radius: 4px;
+}
+
+.location-item:active .drag-handle {
+    cursor: grabbing;
+}
+
+/* Date Range Styles */
+.date-range {
+    margin-bottom: 1.5rem;
+}
+
+.date-inputs {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.date-input {
+    flex: 1;
+}
+
+.date-input label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.trip-dates {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 1rem 0;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.trip-dates strong {
+    color: var(--text-color);
+    margin-right: 0.5rem;
+}
+
+/* Search Container */
 .search-container {
     position: relative;
     margin-bottom: 1rem;
@@ -690,743 +427,10 @@ path.leaflet-interactive {
     color: #dc3545;
     font-size: 0.9rem;
     text-align: center;
-}
-
-/* Marker Popups */
-.custom-popup {
-    margin-bottom: 30px;
-}
-
-.custom-popup .leaflet-popup-content-wrapper {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 3px 14px rgba(0,0,0,0.2);
-}
-
-.custom-popup .leaflet-popup-content {
-    margin: 8px 12px;
-    line-height: 1.4;
-}
-
-.marker-popup {
-    text-align: center;
-}
-
-.marker-popup h4 {
-    margin: 0 0 4px 0;
-    color: var(--accent-color);
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.marker-popup p {
-    margin: 0;
-    font-size: 12px;
-    color: #666;
-}
-
-/* Custom Zoom Controls */
-.custom-zoom-control {
-    background: white;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    padding: 4px;
-}
-
-.zoom-btn {
-    display: block;
-    width: 30px;
-    height: 30px;
-    border: none;
-    background: white;
-    color: #333;
-    font-size: 18px;
-    cursor: pointer;
-    margin: 2px 0;
-    border-radius: 2px;
-    transition: background-color 0.2s;
-}
-
-.zoom-btn:hover {
-    background: #f0f0f0;
-}
-
-.zoom-btn:active {
-    background: #e0e0e0;
-}
-
-/* Trip View Styles */
-.trip-details {
-    padding: 1.5rem;
-}
-
-.trip-description {
-    margin-bottom: 1rem;
-    color: var(--text-color);
-    line-height: 1.5;
-}
-
-.trip-date {
-    color: var(--accent-color);
-    font-size: 0.9rem;
-    margin-bottom: 2rem;
-}
-
-.locations-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.location-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-.location-item:hover {
-    background: rgba(255, 255, 255, 0.8);
-}
-
-.location-number {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: var(--accent-color);
-    color: white;
-    border-radius: 50%;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.location-info {
-    flex: 1;
-}
-
-.location-info strong {
-    display: block;
-    margin-bottom: 0.25rem;
-}
-
-.location-info small {
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-}
-
-.trip-actions {
-    display: flex;
-    gap: 16px;
-    margin-top: 20px;
-    justify-content: flex-start;
-}
-
-.action-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.action-btn i {
-    font-size: 16px;
-}
-
-.trip-card {
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    transition: transform 0.2s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.trip-card:hover {
-    transform: translateY(-2px);
-}
-
-.trip-card h3 {
-    margin: 0;
-    color: var(--text-color);
-}
-
-.trip-card p {
-    margin: 5px 0 0;
-    color: var(--secondary-text-color);
-}
-
-/* Common Panel Styles */
-.trips-header, .view-header, .edit-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    background: inherit;
-    backdrop-filter: blur(10px);
-}
-
-.trips-header h3, .view-header h3, .edit-header h3, #viewTripTitle {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    flex-grow: 1;
-    text-transform: none;
-}
-
-.back-arrow {
-    background: none;
-    border: none;
-    padding: 0.5rem;
-    margin-right: 0.5rem;
-    cursor: pointer;
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.back-arrow:hover {
-    color: var(--accent-color);
-}
-
-/* Ensure header actions stay on the right */
-.header-actions {
-    margin-left: auto;
-}
-
-/* Form Styling */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    text-transform: none;
-}
-
-.form-control {
-    width: 100%;
     padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    transition: border-color 0.2s ease;
-    background-color: #ffffff;
 }
 
-.form-control:focus {
-    outline: none;
-    border-color: var(--accent-color);
-}
-
-.form-divider {
-    margin: 1.5rem 0;
-    border: none;
-    border-top: 1px solid var(--border-color);
-}
-
-/* Search Container */
-.search-container {
-    margin-bottom: 1rem;
-}
-
-/* Location List */
-.location-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.location-item {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    background: var(--background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    transition: background-color 0.2s;
-}
-
-.location-name {
-    flex-grow: 1;
-}
-
-/* Form Actions */
-.edit-actions {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-}
-
-/* Trip Description */
-.trip-description {
-    margin: 1rem 0;
-    line-height: 1.5;
-    color: var(--text-color);
-}
-
-/* Panel Content */
-.view-content, #tripEditMode form, #newTripForm form {
-    padding: 1.5rem;
-}
-
-/* Form Actions */
-.edit-actions, .view-actions {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-    justify-content: center;
-}
-
-/* Trip Description */
-.trip-description {
-    margin: 1rem 0;
-    line-height: 1.5;
-    color: var(--text-color);
-}
-
-/* Common Panel Headers */
-.trips-header, .view-header, .edit-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    background: inherit;
-    backdrop-filter: blur(10px);
-}
-
-.trips-header h3, .view-header h3, .edit-header h3, #viewTripTitle {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    flex-grow: 1;
-    text-transform: none;
-}
-
-.back-arrow {
-    background: none;
-    border: none;
-    padding: 0.5rem;
-    margin-right: 0.5rem;
-    cursor: pointer;
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.back-arrow:hover {
-    color: var(--accent-color);
-}
-
-/* Ensure header actions stay on the right */
-.header-actions {
-    margin-left: auto;
-}
-
-/* Form Styling */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    text-transform: none;
-}
-
-.form-control {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    transition: border-color 0.2s ease;
-    background-color: #ffffff;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: var(--accent-color);
-}
-
-.form-divider {
-    margin: 1.5rem 0;
-    border: none;
-    border-top: 1px solid var(--border-color);
-}
-
-/* Search Container */
-.search-container {
-    margin-bottom: 1rem;
-}
-
-.search-results {
-    display: none;
-    position: absolute;
-    width: calc(100% - 3rem); /* Account for panel padding */
-    background: var(--background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    margin-top: 0.25rem;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.search-result-item {
-    padding: 0.75rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.section-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin: 0 0 0.75rem 0;
-    color: var(--text-color);
-    text-transform: lowercase;
-}
-
-/* Location List */
-.location-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.location-item {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    background: var(--background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    transition: background-color 0.2s;
-}
-
-.location-name {
-    flex-grow: 1;
-    margin-right: 0.5rem;
-}
-
-/* Form Actions */
-.edit-actions {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-}
-
-/* Trip Description */
-.trip-description {
-    margin: 1rem 0;
-    line-height: 1.5;
-    color: var(--text-color);
-}
-
-/* Small icon buttons (like remove location) */
-.btn-icon {
-    padding: 0.5rem;
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.btn-icon:hover {
-    color: var(--accent-color);
-}
-
-.location-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem;
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-}
-
-.location-item .location-name {
-    flex: 1;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    cursor: default;
-}
-
-.location-item .drag-handle {
-    width: 16px;
-    height: 16px;
-    cursor: grab;
-    opacity: 0.7;
-    transition: all 0.2s ease;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238B4BA8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='7' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3Ccircle cx='15' cy='7' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3Ccircle cx='9' cy='12' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3Ccircle cx='15' cy='12' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3Ccircle cx='9' cy='17' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3Ccircle cx='15' cy='17' r='1' fill='%238B4BA8'%3E%3C/circle%3E%3C/svg%3E");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-.location-item .drag-handle:hover {
-    opacity: 1;
-    background-color: rgba(139, 75, 168, 0.1);
-    border-radius: 4px;
-}
-
-.location-item:active .drag-handle {
-    cursor: grabbing;
-}
-
-.location-item .btn-icon {
-    color: var(--text-secondary);
-    padding: 0.25rem;
-    transition: color 0.2s;
-}
-
-.location-item .btn-icon:hover {
-    color: var(--accent-color);
-}
-
-.location-item .fa-trash-alt:hover {
-    color: #dc3545;
-}
-
-.location-item .fa-trash-alt {
-    transition: transform 0.3s ease;
-    transform-origin: top center;
-}
-
-.location-item .fa-trash-alt:hover {
-    color: #dc3545;
-    animation: trash-lid 0.3s ease forwards;
-}
-
-@keyframes trash-lid {
-    0% {
-        transform: rotate(0);
-    }
-    20% {
-        transform: rotate(-5deg);
-    }
-    100% {
-        transform: rotate(-8deg);
-    }
-}
-
-.delete-btn {
-    background: none;
-    border: none;
-    padding: 0.25rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.delete-btn .fa-trash-alt {
-    transition: transform 0.3s ease;
-    transform-origin: top;
-    display: inline-block;
-}
-
-.delete-btn:hover .fa-trash-alt {
-    color: #dc3545;
-    transform: rotate(-12deg);
-}
-
-.delete-btn {
-    color: #ff3b30;
-    transition: color 0.2s ease;
-}
-
-.delete-btn:hover {
-    color: #ff1a1a;
-}
-
-.search-results {
-    position: absolute;
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    max-height: 200px;
-    overflow-y: auto;
-    width: 100%;
-    z-index: 1000;
-    margin-top: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.search-result {
-    padding: 0.75rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.search-result:hover {
-    background-color: rgba(139, 75, 168, 0.1);
-}
-
-.search-error {
-    padding: 0.75rem;
-    color: #dc3545;
-    text-align: center;
-}
-
-.btn-danger {
-    background: #dc3545;
-    color: white;
-    border: none;
-}
-
-.btn-danger:hover {
-    background: #bd2130;
-}
-
-.date-range {
-    margin-bottom: 1.5rem;
-}
-
-.date-inputs {
-    display: flex;
-    gap: 1rem;
-    margin-top: 0.5rem;
-}
-
-.date-input {
-    flex: 1;
-}
-
-.date-input label {
-    display: block;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.25rem;
-}
-
-.date-input input[type="date"] {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-family: inherit;
-    color: var(--text-color);
-    background-color: white;
-    transition: all 0.2s ease;
-}
-
-.date-input input[type="date"]:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(139, 75, 168, 0.1);
-}
-
-/* Calendar icon color */
-.date-input input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: opacity(0.6);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.date-input input[type="date"]::-webkit-calendar-picker-indicator:hover {
-    filter: opacity(1);
-}
-
-.trip-dates {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    margin: 1rem 0;
-    padding: 0.5rem 0;
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
-}
-
-.trip-dates strong {
-    color: var(--text-color);
-    margin-right: 0.5rem;
-}
-
-.location-details {
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-top: 1rem;
-    border: 1px solid var(--border-color);
-}
-
-.location-details h5 {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    text-transform: none;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.75rem;
-}
-
-.location-details p {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: var(--text-color);
-    margin-bottom: 1rem;
-}
-
-.location-item {
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.location-item:hover {
-    background: rgba(255, 255, 255, 0.8);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(139, 75, 168, 0.1);
-}
-
-.location-name {
-    font-weight: 500;
-    color: var(--text-color);
-}
-
-.remove-location {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-}
-
-.remove-location:hover {
-    background: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
-}
-
+/* Message Styles */
 .no-trips-message, .error-message {
     text-align: center;
     padding: 2rem;
@@ -1445,6 +449,226 @@ path.leaflet-interactive {
 
 .error-message {
     color: #dc3545;
+}
+
+/* Panel Headers */
+.panel-header, .trips-header, .view-header, .edit-header {
+    position: sticky;
+    top: 0;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(139, 75, 168, 0.15);
+    background: inherit;
+    backdrop-filter: blur(10px);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.panel-header h1, 
+.trips-header h3, 
+.view-header h3, 
+.edit-header h3, 
+#viewTripTitle {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    flex-grow: 1;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: var(--text-color);
+}
+
+/* Back Button */
+.back-arrow {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    margin-right: 1rem;
+    cursor: pointer;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    font-size: 1.5rem;  /* Match heading size */
+}
+
+.back-arrow:hover {
+    color: var(--accent-color);
+    transform: translateX(-3px);
+}
+
+/* Header Actions */
+.header-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+/* Form Divider */
+.form-divider {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 2rem 0;  /* Increased vertical spacing */
+}
+
+/* Action Buttons Container */
+.edit-actions, .view-actions, .form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 2rem;  /* Increased top margin */
+    justify-content: center;  /* Center the buttons */
+    padding: 0 1rem;  /* Add some horizontal padding */
+}
+
+.edit-actions .btn, 
+.view-actions .btn, 
+.form-actions .btn {
+    min-width: 120px;  /* Ensure consistent button width */
+}
+
+/* ==========================================================================
+   Forms and Input Elements
+   ========================================================================== */
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: none;
+    letter-spacing: 0.02em;
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    color: var(--text-color);
+}
+
+/* ==========================================================================
+   Buttons and Interactive Elements
+   ========================================================================== */
+
+.btn {
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    line-height: 1;
+}
+
+.btn-primary {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #6f3c86;
+}
+
+.btn-outline-primary {
+    background: transparent;
+    color: var(--accent-color);
+    border: 2px solid var(--accent-color);
+}
+
+.btn-outline-primary:hover {
+    background: rgba(139, 75, 168, 0.1);
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background: #bd2130;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-btn .fa-trash-alt {
+    transition: transform 0.3s ease;
+    transform-origin: top;
+    display: inline-block;
+}
+
+.delete-btn:hover .fa-trash-alt {
+    color: #dc3545;
+    transform: rotate(-12deg);
+}
+
+/* ==========================================================================
+   Animations and Transitions
+   ========================================================================== */
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 30, 128, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 30, 128, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 30, 128, 0);
+    }
+}
+
+@keyframes pulseHighlighted {
+    0% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* Trip List Styles */
@@ -1624,7 +848,7 @@ input[type="date"]:hover {
 
 .location-item .location-name {
     flex: 1;
-    margin: 0 0.5rem;
+    margin: 0;
 }
 
 .location-item .drag-handle {
@@ -1686,4 +910,135 @@ label,
 
 #map .leaflet-tile-pane .leaflet-layer {
     transition: opacity 0.5s ease-in-out;
+}
+
+/* Location Details */
+.location-details {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+.location-details h5 {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-transform: none;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    margin-top: 0;
+}
+
+.location-details p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-color);
+    margin: 0;
+}
+
+/* Location List Items */
+.location-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.location-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.location-item .location-name {
+    flex: 1;
+    margin: 0;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.location-item .fa-chevron-right {
+    color: var(--text-secondary);
+    margin-left: 0.75rem;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.2s ease;
+}
+
+.location-item:hover .fa-chevron-right {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Edit Mode Location Items */
+.edit-locations .location-item {
+    cursor: move;
+    padding-left: 2rem;
+    position: relative;
+}
+
+.edit-locations .drag-handle {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    cursor: move;
+}
+
+/* Location List Items */
+.location-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.location-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.location-info {
+    flex: 1;
+    min-width: 0; /* Required for text truncation */
+}
+
+.location-item .location-name {
+    margin: 0;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.location-item .location-address {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.location-item .fa-chevron-right {
+    color: var(--text-secondary);
+    margin-left: 0.75rem;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.2s ease;
+    flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.location-item:hover .fa-chevron-right {
+    opacity: 1;
+    transform: translateX(0);
 }

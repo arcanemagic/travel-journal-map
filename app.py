@@ -5,6 +5,10 @@ import requests
 import os
 import logging
 import traceback
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -41,7 +45,7 @@ class Trip(db.Model):
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    locations = db.relationship('Location', backref='trip', lazy=True, order_by='Location.order', cascade='all, delete-orphan')
+    locations = db.relationship('Location', backref='trip', lazy='joined', order_by='Location.order', cascade='all, delete-orphan')
 
     def to_dict(self):
         return {
@@ -51,7 +55,7 @@ class Trip(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'start_date': self.start_date.isoformat() if self.start_date else None,
             'end_date': self.end_date.isoformat() if self.end_date else None,
-            'locations': [location.to_dict() for location in self.locations]
+            'locations': [location.to_dict() for location in self.locations] if isinstance(self.locations, (list, tuple)) else []
         }
 
 class Location(db.Model):
@@ -355,14 +359,5 @@ def delete_trip(trip_id):
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    # Clear port 5001 if it's in use
-    try:
-        import socket
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(('127.0.0.1', 5001))
-        s.close()
-    except socket.error as e:
-        logger.warning(f"Port 5001 might be in use: {e}")
-        
-    logger.info("Starting server on port 5001")
-    app.run(debug=True, port=5001)
+    port = int(os.environ.get('FLASK_RUN_PORT', 5001))  # Default to 5000 if not set
+    app.run(debug=True, host='0.0.0.0', port=port)

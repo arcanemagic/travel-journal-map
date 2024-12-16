@@ -281,6 +281,7 @@ function addLocation(location) {
             longitude: lon
         });
         console.log('Location added to selectedLocations:', selectedLocations[selectedLocations.length - 1]);
+        console.log('Locations list:', selectedLocations);
         
         // Update both lists and map
         updateLocationsList();
@@ -296,7 +297,7 @@ function updateLocationsList() {
     const editLocations = document.getElementById('editLocations');
     const newLocations = document.getElementById('newLocations');
     const activeList = editLocations || newLocations;
-
+    console.log('Active list:', activeList);
     if (!activeList) return;
 
     activeList.innerHTML = '';
@@ -336,16 +337,19 @@ function setupSortableLocations() {
     const editLocations = document.getElementById('editLocations');
     
     if (newTripLocations) {
+        console.log('Setting up sortable for new trip locations', newTripLocations);
         new Sortable(newTripLocations, {
             animation: 150,
             disabled: !!currentTrip && !editMode,
             onEnd: function() {
                 updateLocationsOrder('selectedLocations');
+                console.log('Updated selectedLocations in newTripLocations:', selectedLocations);
             }
         });
     }
     
     if (editLocations) {
+        console.log('Setting up sortable for edit locations', editLocations);
         new Sortable(editLocations, {
             animation: 150,
             onEnd: function() {
@@ -356,6 +360,7 @@ function setupSortableLocations() {
 }
 
 function setupDragAndDrop() {
+    console.log('Setting up drag and drop for new trip locations');
     const lists = ['newLocations', 'editLocations'];
     
     lists.forEach(listId => {
@@ -373,6 +378,7 @@ function setupDragAndDrop() {
             handle: '.drag-handle',
             draggable: '.location-item',
             onEnd: function(evt) {
+                console.log('Drag-and-drop ended'); // Add this line to check if the event is firing
                 // Update the selectedLocations array to match the new order
                 const items = evt.to.getElementsByClassName('location-item');
                 const newOrder = [];
@@ -384,6 +390,9 @@ function setupDragAndDrop() {
                 });
                 
                 selectedLocations = newOrder;
+
+                console.log('Updated selectedLocations:', selectedLocations); // Add this line to check the updated order
+
                 updateMap();
             }
         });
@@ -392,14 +401,20 @@ function setupDragAndDrop() {
 
 function updateLocationsOrder(listId) {
     const items = document.querySelectorAll(`#${listId} .location-item`);
+    console.log('Updating locations order for list:', listId);
+    console.log('Items:', items);
     const newLocations = [];
     items.forEach(item => {
-        const locationName = item.querySelector('span').textContent;
+        console.log('Item:', item);
+        const locationName = item.querySelector('.location-name').textContent;
         const location = selectedLocations.find(loc => loc.name === locationName);
         if (location) {
+            console.log('Found location:', location);
             newLocations.push(location);
         }
     });
+
+    console.log('New locations order:', newLocations);
     selectedLocations = newLocations;
     updateMap();
 }
@@ -1531,17 +1546,15 @@ function updateNewTripLocations() {
     });
 
     // Initialize Sortable for drag-and-drop
-    if (!newTripLocations.sortable) {
-        new Sortable(newTripLocations, {
-            animation: 150,
-            handle: '.drag-handle',
-            draggable: '.location-item',
-            onEnd: function() {
-                updateLocationsOrder('selectedLocations');
-            }
-        });
-        newTripLocations.sortable = true;
-    }
+    console.log('Setting up sortable for new trip locations 2', newTripLocations);
+    new Sortable(newTripLocations, {
+        animation: 150,
+        handle: '.drag-handle',
+        draggable: '.location-item',
+        onEnd: function() {
+            updateLocationsOrder('newTripLocations');
+        }
+    });
 
     // Update map with current locations
     updateMap();

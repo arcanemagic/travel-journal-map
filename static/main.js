@@ -284,8 +284,11 @@ function addLocation(location) {
         console.log('Locations list:', selectedLocations);
         
         // Update both lists and map
-        updateLocationsList();
-        updateNewTripLocations();
+        if (document.getElementById('newTripForm').style.display === 'block') {
+            updateNewTripLocations();
+        } else {
+            updateLocationsList();
+        }
         updateMap();
     } catch (error) {
         console.error('Error adding location:', error);
@@ -306,10 +309,13 @@ function updateLocationsList() {
         li.className = 'location-item';
         li.innerHTML = `
             <div class="drag-handle" role="button" aria-label="Drag to reorder"></div>
-            <div class="location-info">
+            <div class="location-info" id="location-info-${index}">
                 <div class="location-name">${location.name}</div>
                 <div class="location-address">${location.display_name || ''}</div>
             </div>
+            <button class="btn-icon edit-btn" onclick="startInlineEdit(${index}, event)" aria-label="Edit location">
+                <i class="fas fa-edit"></i>
+            </button>
             <button class="btn-icon delete-btn" onclick="removeLocation(${index})" aria-label="Remove location">
                 <i class="delete-icon"></i>
             </button>
@@ -319,6 +325,66 @@ function updateLocationsList() {
 
     // Update map with current locations
     updateMap();
+}
+
+function startInlineEdit(index, event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const locationInfo = document.getElementById(`location-info-${index}`);
+    console.log(locationInfo);
+    if (!locationInfo) {
+        console.error(`Element with id "location-info-${index}" not found.`);
+        return; // Exit the function early
+    }
+
+    const currentName = selectedLocations[index].name || '';
+
+    console.log(`Current name for location ${index}: ${currentName}`);
+
+    locationInfo.innerHTML = `
+        <input type="text" id="edit-name-${index}" class="edit-location-input" value="${currentName}" />
+        <div class="edit-actions">
+            <button class="btn-icon save-btn" onclick="saveInlineEdit(${index})">Save</button>
+            <button class="btn-icon cancel-btn" onclick="cancelInlineEdit(${index})">Cancel</button>
+        </div>
+    `;
+
+    document.getElementById(`edit-name-${index}`).focus();
+}
+
+function saveInlineEdit(index) {
+    const inputField = document.getElementById(`edit-name-${index}`);
+    const newName = inputField.value.trim();
+
+    if (newName === '') {
+        alert('Location name cannot be empty.');
+        inputField.focus();
+        return;
+    }
+
+    // Update the location name
+    selectedLocations[index].name = newName;
+
+    // Refresh the locations list
+    if (document.getElementById('newTripForm').style.display === 'block') {
+        updateNewTripLocations();
+    } else {
+        updateLocationsList();
+    }
+    updateMap();
+    console.log(`Location renamed to: ${newName}`);
+}
+
+function cancelInlineEdit(index) {
+    const locationInfo = document.getElementById(`location-info-${index}`);
+    const location = selectedLocations[index];
+
+    // Restore the original view
+    locationInfo.innerHTML = `
+        <span class="location-name">${location.name}</span>
+        <div class="location-address">${location.display_name || ''}</div>
+    `;
 }
 
 function removeLocation(index) {
@@ -1529,15 +1595,18 @@ function updateNewTripLocations() {
     if (!newTripLocations) return;
 
     newTripLocations.innerHTML = '';
-    selectedLocations.forEach((loc, index) => {
+    selectedLocations.forEach((location, index) => {
         const li = document.createElement('li');
         li.className = 'location-item';
         li.innerHTML = `
             <div class="drag-handle" role="button" aria-label="Drag to reorder"></div>
-            <div class="location-info">
-                <div class="location-name">${loc.name}</div>
-                <div class="location-address">${loc.display_name || ''}</div>
+            <div class="location-info" id="location-info-${index}">
+                <div class="location-name">${location.name}</div>
+                <div class="location-address">${location.display_name || ''}</div>
             </div>
+            <button class="btn-icon edit-btn" onclick="startInlineEdit(${index}, event)" aria-label="Edit location">
+                <i class="fas fa-edit"></i>
+            </button>
             <button class="btn-icon delete-btn" onclick="removeLocation(${index})" aria-label="Remove location">
                 <i class="delete-icon"></i>
             </button>

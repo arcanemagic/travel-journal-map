@@ -19,6 +19,22 @@
     padding: 0;
 }
 
+.edit-location-input {
+    width: 60%;
+    padding: 5px;
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+.edit-actions {
+    display: inline-block;
+}
+
+.btn-icon.save-btn, .btn-icon.cancel-btn {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.5;

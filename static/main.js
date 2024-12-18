@@ -97,7 +97,7 @@ function initializeMap() {
     // Add crisp labels on top
     labelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors | &copy; <a href="https://carto.com/attributions" target="_blank">CARTO</a> | <a href="https://nominatim.org/" target="_blank">Nominatim</a> | <a href="https://fontawesome.com/license" target="_blank">Font Awesome</a> | Created by <a href="https://dhruv.tech" target="_blank">Dhruv Jain</a> with Cascade'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors | &copy; <a href="https://carto.com/attributions" target="_blank">CARTO</a> | <a href="https://nominatim.org/" target="_blank">Nominatim</a> | <a href="https://fontawesome.com/license" target="_blank">Font Awesome</a> | Created by <a href="https://dhruvjain.me" target="_blank">Dhruv Jain</a> using <a href="https://windsurf.ai" target="_blank">Windsurf</a>'
     }).addTo(map);
 
     // Add zoom control to bottom right

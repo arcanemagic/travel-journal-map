@@ -31,7 +31,8 @@ if not os.path.exists(instance_path):
 
 # Configure SQLAlchemy
 db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'instance', 'travel_journal.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+# app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True  # Log all SQL queries
 
